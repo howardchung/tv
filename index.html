@@ -18,8 +18,12 @@
         hls.loadSource(src);
         hls.attachMedia(video);
         hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-          // video.muted = true;
-          video.play();
+          try {
+            video.play();
+	  } catch (e) {
+            video.muted = true;
+            video.play();
+	  }
         });
       }
       // hls.js is not supported on platforms that do not have Media Source Extensions (MSE) enabled.
