@@ -30,7 +30,7 @@ stream = launch(channels[channel])
 while True:
     time.sleep(3)
     try:
-        x = requests.get('https://howardchung.github.io/channel')
+        x = requests.get('https://howardchung.github.io/tv/channel.html')
         # new = json.loads(x.text)['title']
         new = x.text.strip()
         # If different from current channel
