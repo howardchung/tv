@@ -7,23 +7,24 @@ import atexit
 import json
 
 channels = {
-    'nbc': '1acf95b4c41cc63f4b34b7fd89e3e84c',
-    'abc': '78065103b76684298a77d0b0227e4a1b',
-    'cbs': 'c9909ad60ae8c1a4c27728bc2fa2a92b',
-    'fox': '77a9546b7a1642fa2da7f5fd2e8939f8',
+    'nbc': '0fb23aab6bc3f953589495c112fcff37', #king
+    'abc': '98d79ac2602abd0678317916fb2bf044', #komo
+    'cbs': '', #kiro
 }
-
+#http://127.0.0.1:9981/play/ticket/stream/channel/98d79ac2602abd0678317916fb2bf044?title=4.1%20%3A%20KOMO
+#://127.0.0.1:9981/play/ticket/stream/channel/0fb23aab6bc3f953589495c112fcff37?title=5.1%20%3A%20KING-
 stream: subprocess.Popen = None
 
 def launch(id):
     print(id)
-    return subprocess.Popen('ffmpeg -i "http://127.0.0.1:9981/stream/channel/' + id + '?profile=pass" -filter:v fps=fps=30 -c:v libx264 -preset veryfast -x264-params keyint=60 -b:v 2.5M -c:a aac -ar 44100 -ac 1 -drop_pkts_on_overflow 1 -attempt_recovery 1 -recover_any_error 1 -f flv rtmp://5.161.147.222/live/abc', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return subprocess.Popen('ffmpeg -i "http://127.0.0.1:9981/stream/channel/' + id + '?profile=pass" -filter:v fps=fps=30 -c:v libx264 -preset ultrafast -x264-params keyint=60 -b:v 3M -c:a aac -ac 1 -attempt_recovery 1 -recover_any_error 1 -f flv rtmp://5.161.147.222/live/abc', shell=True)
 
 def kill():
     print('kill group')
     os.killpg(os.getpgid(stream.pid), signal.SIGTERM)
 
-channel = 'abc'
+x = requests.get('https://howardchung.github.io/tv/channel.html')
+channel = x.text.strip()
 stream = launch(channels[channel])
 # Repeat every 3 seconds
 # Read the channel from URL
@@ -33,6 +34,7 @@ while True:
         x = requests.get('https://howardchung.github.io/tv/channel.html')
         # new = json.loads(x.text)['title']
         new = x.text.strip()
+        # print(new, channel)
         # If different from current channel
         # stop the current stream and restart
         if new != channel and new in channels:
