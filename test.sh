@@ -1,0 +1,1 @@
+ffmpeg -i /dev/dvb/adapter0/dvr0 -filter:v fps=fps=30 -c:v libx264 -preset veryfast -x264-params keyint=60 -b:v 3M -c:a aac -ac 1 -drop_pkts_on_overflow 1 -attempt_recovery 1 -recover_any_error 1 -f flv rtmp://5.161.147.222/live/abc
