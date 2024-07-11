@@ -12,7 +12,7 @@ import json
 stream: subprocess.Popen = None
 
 def launch(id):
-    return subprocess.Popen('azap -r -c channels.conf "' + id + '" & ffmpeg -i /dev/dvb/adapter0/dvr0 -filter:v fps=fps=30 -c:v libx264 -preset veryfast -x264-params keyint=60 -b:v 4M -c:a aac -ac 1 -attempt_recovery 1 -recover_any_error 1 -f flv rtmp://5.161.147.222/live/abc', shell=True)
+    return subprocess.Popen('dvbv5-zap --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset ultrafast -x264-params keyint=60 -b:v 4M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/abc', shell=True)
 
 def kill():
     print('kill group')
