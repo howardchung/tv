@@ -1,1 +1,1 @@
-dvbv5-zap -C US --input-format=ZAP -c channels.conf -o - "king-hd" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset ultrafast -x264-params keyint=60 -b:v 4M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/abc
+dvbv5-zap --adapter=1 --input-format=ZAP -c channels.conf -o - "king-hd" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset ultrafast -x264-params keyint=60 -b:v 4M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/nbc
