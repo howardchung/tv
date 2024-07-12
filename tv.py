@@ -39,7 +39,7 @@ while True:
             if stream != None:
                 print('kill process')
                 os.system("killall -9 ffmpeg");
-                os.system("killall -9 azap");
+                os.system("killall -9 dvbv5-zap");
             stream = launch(new)
         # If process crashes, restart it
         if stream.poll() != None:
