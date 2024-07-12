@@ -9,7 +9,7 @@ import sys
 
 # king-hd (nbc) or komo (abc)
 stream: subprocess.Popen = None
-adapter = sys.argv[1]
+adapter = sys.argv[1] or 0
 url = 'https://howardchung.github.io/tv/adapter' + adapter + '.html'
 atexit.register(kill)
 
