@@ -7,18 +7,20 @@ import atexit
 import json
 import sys
 
+
+
 # king-hd (nbc) or komo (abc)
 stream: subprocess.Popen = None
 adapter = sys.argv[1] or 0
 url = 'https://howardchung.github.io/tv/adapter' + adapter + '.html'
-atexit.register(kill)
-
-def launch(id):
-    return subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset ultrafast -x264-params keyint=60 -b:v 4M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + adapter, shell=True)
 
 def kill():
     print('kill group')
     os.killpg(os.getpgid(stream.pid), signal.SIGTERM)
+atexit.register(kill)
+
+def launch(id):
+    return subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset ultrafast -x264-params keyint=60 -b:v 4M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + adapter, shell=True)
 
 x = requests.get(url)
 channel = x.text.strip()
