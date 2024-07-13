@@ -13,12 +13,14 @@ adapter = sys.argv[1] or 0
 url = 'https://howardchung.github.io/tv/adapter' + adapter + '.html'
 
 def kill():
+    global stream
     if stream != None:
         os.kill(stream.pid, signal.SIGTERM)
         stream = None
 atexit.register(kill)
 
 def launch(id):
+    global stream
     if not id:
         return
     stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset superfast -x264-params keyint=60 -b:v 3M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + adapter, shell=True)
