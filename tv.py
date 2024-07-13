@@ -17,7 +17,6 @@ def kill():
     if stream != None:
         os.killpg(os.getpgid(stream.pid), signal.SIGTERM)
         stream = None
-atexit.register(kill)
 
 def launch(id):
     global stream
@@ -25,6 +24,7 @@ def launch(id):
         return
     stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset superfast -x264-params keyint=60 -b:v 3M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + adapter, shell=True, preexec_fn=os.setsid)
 
+atexit.register(kill)
 x = requests.get(url)
 channel = x.text.strip()
 launch(channel)
@@ -34,7 +34,6 @@ while True:
     try:
         x = requests.get(url)
         new = x.text.strip()
-        # print(new, channel)
         # If different from current channel
         # stop the current stream and restart
         if new != channel:
