@@ -7,8 +7,6 @@ import atexit
 import json
 import sys
 
-
-
 # king-hd (nbc) or komo (abc)
 stream: subprocess.Popen = None
 adapter = sys.argv[1] or 0
@@ -20,18 +18,16 @@ def kill():
 atexit.register(kill)
 
 def launch(id):
-    return subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset ultrafast -x264-params keyint=60 -b:v 4M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + adapter, shell=True)
+    return subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset veryfast -x264-params keyint=60 -b:v 3M -tune zerolatency -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + adapter, shell=True)
 
 x = requests.get(url)
 channel = x.text.strip()
 stream = launch(channel)
 # Repeat every 3 seconds
-# Read the channel from URL
 while True:
     time.sleep(3)
     try:
         x = requests.get(url)
-        # new = json.loads(x.text)['title']
         new = x.text.strip()
         # print(new, channel)
         # If different from current channel
