@@ -13,8 +13,7 @@ adapter = sys.argv[1] or 0
 url = 'https://howardchung.github.io/tv/adapter' + adapter + '.html'
 
 def kill():
-    print('kill group')
-    os.killpg(os.getpgid(stream.pid), signal.SIGTERM)
+    os.kill(stream.pid, signal.SIGTERM)
 atexit.register(kill)
 
 def launch(id):
