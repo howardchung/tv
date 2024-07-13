@@ -13,8 +13,9 @@ adapter = sys.argv[1] or 0
 url = 'https://howardchung.github.io/tv/adapter' + adapter + '.html'
 
 def kill():
-    os.kill(stream.pid, signal.SIGTERM)
-    stream = None
+    if stream != None:
+        os.kill(stream.pid, signal.SIGTERM)
+        stream = None
 atexit.register(kill)
 
 def launch(id):
@@ -36,12 +37,11 @@ while True:
         # stop the current stream and restart
         if new != channel:
             channel = new
-            if stream != None:
-                kill()
+            kill()
             launch(new)
-        # If process crashes, restart it
-        if stream.poll() != None:
+        # If we are supposed to be streaming and process exited, restart
+        if new and stream and stream.poll() != None:
             print(stream.poll())
             launch(channel)
-    except:
-        print('Exception!')
+    except Exception as e:
+        print(e)
