@@ -17,6 +17,8 @@ def kill():
 atexit.register(kill)
 
 def launch(id):
+    if not id:
+        return None
     return subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset veryfast -x264-params keyint=60 -b:v 3M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + adapter, shell=True)
 
 x = requests.get(url)
@@ -35,8 +37,7 @@ while True:
             channel = new
             if stream != None:
                 kill()
-            if new:
-                stream = launch(new)
+            stream = launch(new)
         # If process crashes, restart it
         if stream.poll() != None:
             print(stream.poll())
