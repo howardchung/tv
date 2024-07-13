@@ -15,7 +15,7 @@ url = 'https://howardchung.github.io/tv/adapter' + adapter + '.html'
 def kill():
     global stream
     if stream != None:
-        os.kill(stream.pid, signal.SIGTERM)
+        os.killpg(os.getpgid(stream.pid), signal.SIGTERM)
         stream = None
 atexit.register(kill)
 
