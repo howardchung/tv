@@ -23,7 +23,7 @@ def launch(id):
     global stream
     if not id:
         return
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset superfast -x264-params keyint=60 -b:v 3M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + adapter, shell=True)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset superfast -x264-params keyint=60 -b:v 3M -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + adapter, shell=True, preexec_fn=os.setsid)
 
 x = requests.get(url)
 channel = x.text.strip()
