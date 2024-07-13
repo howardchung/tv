@@ -11,8 +11,8 @@ import sys
 stream: subprocess.Popen = None
 adapter = sys.argv[1] or 0
 url = 'https://howardchung.github.io/tv/adapter' + adapter + '.html'
-preset = "superfast"
-crf = "24"
+preset = "veryfast"
+crf = "26"
 
 def kill():
     global stream
