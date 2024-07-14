@@ -7,12 +7,11 @@ import atexit
 import json
 import sys
 
-# king-hd (nbc) or komo (abc)
 stream: subprocess.Popen = None
 adapter = sys.argv[1] or 0
-url = 'https://howardchung.github.io/tv/adapter' + adapter + '.html'
-preset = "superfast"
-crf = "24"
+url = "https://backend.watchparty.me/roomData/tender-squirrel-reproduce"
+preset = "fast"
+crf = "23"
 
 def kill():
     global stream
@@ -24,18 +23,19 @@ def launch(id):
     global stream
     if not id:
         return
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -vf scale=-1:720 -crf ' + crf + ' -preset ' + preset + ' -x264-params keyint=60 -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + adapter, shell=True, preexec_fn=os.setsid)
+    #-vf scale=-1:720
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -crf ' + crf + ' -preset ' + preset + ' -x264-params keyint=60 -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + id, shell=True, preexec_fn=os.setsid)
 
 atexit.register(kill)
 x = requests.get(url)
-channel = x.text.strip()
+channel = json.loads(x)["video"].split("/")[-1]l.split(".")[0]
 launch(channel)
 # Repeat every 3 seconds
 while True:
     time.sleep(3)
     try:
         x = requests.get(url)
-        new = x.text.strip()
+        new = json.loads(x)["video"].split("/")[-1]l.split(".")[0]
         # If different from current channel
         # stop the current stream and restart
         if new != channel:
