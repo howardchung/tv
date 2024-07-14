@@ -8,7 +8,10 @@ import json
 import sys
 
 stream: subprocess.Popen = None
-adapter = sys.argv[1] or 0
+try:
+    adapter = sys.argv[1]
+except:
+    adapter = "0"
 url = "https://backend.watchparty.me/roomData/tender-squirrel-reproduce"
 preset = "fast"
 crf = "23"
