@@ -1,0 +1,4 @@
+https://rtmp.howardchung.net/hls/komo.m3u8
+https://rtmp.howardchung.net/hls/king-hd.m3u8
+https://rtmp.howardchung.net/hls/kiro7.m3u8
+https://rtmp.howardchung.net/hls/fox13.m3u8
