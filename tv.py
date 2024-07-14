@@ -28,14 +28,14 @@ def launch(id):
 
 atexit.register(kill)
 x = requests.get(url)
-channel = json.loads(x)["video"].split("/")[-1]l.split(".")[0]
+channel = json.loads(x)["video"].split("/")[-1].split(".")[0]
 launch(channel)
 # Repeat every 3 seconds
 while True:
     time.sleep(3)
     try:
         x = requests.get(url)
-        new = json.loads(x)["video"].split("/")[-1]l.split(".")[0]
+        new = json.loads(x)["video"].split("/")[-1].split(".")[0]
         # If different from current channel
         # stop the current stream and restart
         if new != channel:
