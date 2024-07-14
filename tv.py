@@ -13,7 +13,7 @@ try:
 except:
     adapter = "0"
 url = "https://backend.watchparty.me/roomData/tender-squirrel-reproduce"
-preset = "veryfast"
+preset = "superfast"
 crf = "23"
 
 def kill():
