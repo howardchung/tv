@@ -27,7 +27,7 @@ def launch(id):
         return
     #-vf scale=-1:720
     #-vf fps=30
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -vf "scale=-1:720,fps=30" -b:v 5M -c:v libx264 -preset ' + preset + ' -x264-params keyint=60 -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + id, shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -b:v 5M -c:v libx264 -preset ' + preset + ' -x264-params keyint=60 -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + id, shell=True, preexec_fn=os.setsid)
 
 atexit.register(kill)
 x = requests.get(url)
