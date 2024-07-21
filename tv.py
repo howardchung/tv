@@ -13,7 +13,7 @@ try:
 except:
     adapter = "0"
 url = "https://backend.watchparty.me/roomData/tender-squirrel-reproduce"
-preset = "superfast"
+preset = "veryfast"
 
 def kill():
     global stream
