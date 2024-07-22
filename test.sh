@@ -12,3 +12,6 @@ ffmpeg -err_detect ignore_err -i udp://localhost:5000 -c:v libx264 -preset veryf
 #transcode
 ffmpeg -i rtmp://localhost:1935/transcode/$name -vf "scale=480:320" -c:v libx264 -c:a copy -f flv rtmp://localhost:1935/live/$name
 
+#serve
+ffmpeg -err_detect ignore_err -i udp://localhost:5000 -c:v libx264 -preset veryfast -c:a aac -ac 2 -listen 1 -f mp4 -movflags frag_keyframe+empty_moov http://0.0.0.0:8080
+
