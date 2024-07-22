@@ -32,12 +32,11 @@ def launch(id):
     stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | nc -u 5.161.147.222 5000', shell=True, preexec_fn=os.setsid)
 
 def getChannel():
-    #channel = requests.get(url).json()["video"].split("/")[-1].split(".")[0]
-    channel = requests.get(url2).json()["video"].split("?channel=")[1]
-    return channel
+    #return requests.get(url).json()["video"].split("/")[-1].split(".")[0]
+    return requests.get(url2).json()["video"].split("?channel=")[1]
     
 atexit.register(kill)
-launch(getChannel())
+channel = launch(getChannel())
 # Repeat every 3 seconds
 while True:
     time.sleep(3)
