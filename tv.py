@@ -13,6 +13,7 @@ try:
 except:
     adapter = "0"
 url = "https://backend.watchparty.me/roomData/tender-squirrel-reproduce"
+url2 = "https://backend.watchparty.me/roomData/alike-week-recognize"
 preset = "superfast"
 
 def kill():
@@ -27,18 +28,21 @@ def launch(id):
         return
     #-vf scale=-1:720
     #-vf fps=30
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -tune zerolatency -c:v libx264 -x264-params keyint=120 -preset ' + preset + ' -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + id, shell=True, preexec_fn=os.setsid)
+    #stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -tune zerolatency -c:v libx264 -x264-params keyint=120 -preset ' + preset + ' -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + id, shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | nc -u 5.161.147.222 5000', shell=True, preexec_fn=os.setsid)
 
+def getChannel():
+    #channel = requests.get(url).json()["video"].split("/")[-1].split(".")[0]
+    channel = requests.get(url2).json()["video"].split("?channel=")[1]
+    return channel
+    
 atexit.register(kill)
-x = requests.get(url)
-channel = x.json()["video"].split("/")[-1].split(".")[0]
-launch(channel)
+launch(getChannel())
 # Repeat every 3 seconds
 while True:
     time.sleep(3)
     try:
-        x = requests.get(url)
-        new = x.json()["video"].split("/")[-1].split(".")[0]
+        new = getChannel()
         # If different from current channel
         # stop the current stream and restart
         if new != channel:
