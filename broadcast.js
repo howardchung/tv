@@ -1,5 +1,5 @@
 const http = require("http");
-const { spawn } = require('node:child_process');
+const { spawn } = require('child_process');
 const ffmpeg = spawn('ffmpeg', ['-i', 'rtmp://localhost/live/tv', '-c:v', 'copy', '-c:a', 'copy', '-f', 'mpegts', '-']);
 
 const sockets = new Map();
