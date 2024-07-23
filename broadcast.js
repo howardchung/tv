@@ -18,6 +18,7 @@ server.on('connection', (socket) => {
 });
 ffmpeg.stdout.on('data', (data) => {
   for (let socket of sockets.values()) {
+      console.log('wrote %s bytes to socket', data.length);
       socket.write(data);
   }
 });
