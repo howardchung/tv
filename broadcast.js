@@ -14,7 +14,7 @@ const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     const rand = Math.random();
     sockets.set(rand, res);
-    res.on('end', () => {
+    req.once('close', () => {
       console.log('deleting socket %s', rand);
       sockets.delete(rand);
     });
