@@ -1,6 +1,6 @@
 const http = require("http");
 const { spawn } = require('node:child_process');
-const ls = spawn('ls', ['-lh', '/usr']);
+const ffmpeg = spawn('ffmpeg', ['-i', 'rtmp://localhost/live/tv', '-c:v', 'copy', '-c:a', 'copy', '-f', 'mpegts', '-']);
 
 const sockets = new Map();
 const server = http.createServer();
@@ -14,7 +14,7 @@ server.on('connection', (socket) => {
     sockets.delete(rand);
   });
 });
-ls.stdout.on('data', (data) => {
+ffmpeg.stdout.on('data', (data) => {
   sockets.values().forEach(socket => {
     socket.write(data);
   });
