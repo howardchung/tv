@@ -10,7 +10,8 @@ process.stdin.on('data', (data) => {
 });
 
 const server = http.createServer((req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // nginx sets headers
+    // res.setHeader('Access-Control-Allow-Origin', '*');
     const rand = Math.random();
     sockets.set(rand, res);
     req.once('close', () => {
