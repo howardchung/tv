@@ -1,4 +1,4 @@
-https://rtmp.howardchung.net/hls/komo.m3u8
-https://rtmp.howardchung.net/hls/king-hd.m3u8
-https://rtmp.howardchung.net/hls/kiro7.m3u8
-https://rtmp.howardchung.net/hls/fox13.m3u8
+https://rtmp.howardchung.net/hls/tv.m3u8?channel=komo
+https://rtmp.howardchung.net/hls/tv.m3u8?channel=king-hd
+https://rtmp.howardchung.net/hls/tv.m3u8?channel=kiro7
+https://rtmp.howardchung.net/hls/tv.m3u8?channel=fox13
