@@ -3,7 +3,9 @@ const { spawn } = require('child_process');
 const ffmpeg = spawn('ffmpeg', ['-i', 'rtmp://localhost/live/tv', '-c:v', 'copy', '-c:a', 'copy', '-f', 'mpegts', '-']);
 
 const sockets = new Map();
-const server = http.createServer();
+const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*'); 
+});
 const host = '0.0.0.0';
 const port = 8081;
 server.listen(port, host, () => {
