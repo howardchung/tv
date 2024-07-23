@@ -4,7 +4,9 @@ const ffmpeg = spawn('ffmpeg', ['-i', 'rtmp://localhost/live/tv', '-c:v', 'copy'
 
 const sockets = new Map();
 const server = http.createServer();
-server.listen(8081, '0.0.0.0', () => {
+const host = '0.0.0.0';
+const port = 8081;
+server.listen(port, host, () => {
     console.log(`Server is running on http://${host}:${port}`);
 });
 server.on('connection', (socket) => {
