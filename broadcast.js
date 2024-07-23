@@ -11,7 +11,7 @@ server.listen(port, host, () => {
 });
 server.on('connection', (socket) => {
   const rand = Math.random();
-  sockets.put(rand, socket);
+  sockets.set(rand, socket);
   socket.on('finished', () => {
     sockets.delete(rand);
   });
