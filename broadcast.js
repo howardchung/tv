@@ -17,7 +17,7 @@ server.on('connection', (socket) => {
   });
 });
 ffmpeg.stdout.on('data', (data) => {
-  sockets.values().forEach(socket => {
-    socket.write(data);
-  });
+  for (let socket of sockets.value()) {
+      socket.write(data);
+  }
 });
