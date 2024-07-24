@@ -8,6 +8,9 @@ process.stdin.on('data', (data) => {
       res.write(data);
   }
 });
+process.stdin.on('end', () => {
+  process.exit(0);
+});
 
 const server = http.createServer((req, res) => {
     // nginx sets headers
