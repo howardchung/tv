@@ -18,11 +18,11 @@
     player.attachMediaElement(document.getElementById("video"));
     player.load();
     try {
-      player.play();
+      await player.play();
     } catch (e) {
       console.log('autoplay disabled, muting');
       document.getElementById("video").muted = true;
-      player.play();
+      await player.play();
     }
     </script>
   </body>
