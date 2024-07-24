@@ -1,14 +1,16 @@
 const http = require("http");
+const { spawn } = require("child_process");
 const sockets = new Map();
 
 //ffmpeg -err_detect ignore_err -i rtmp://localhost:1935/live/tv -c:v copy -c:a copy -f mpegts - | node broadcast.js
-process.stdin.on('data', (data) => {
+const ffmpeg = spawn("ffmpeg", ["-err_detect", "ignore_err", "-i", "rtmp://localhost:1935/live/tv", "-c:v", "copy", "-c:a", "copy", "-f", "mpegts", "-"]);
+ffmpeg.stdout.on('data', (data) => {
   for (let res of sockets.values()) {
       // console.log('wrote %s bytes to %s sockets', data.length, sockets.size);
       res.write(data);
   }
 });
-process.stdin.on('close', () => {
+ffmpeg.stdout.on('close', () => {
   process.exit(0);
 });
 
