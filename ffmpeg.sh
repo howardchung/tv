@@ -3,8 +3,8 @@
 #HLS for hls.js players, serve segments with nginx
 #mpegts stream over http for mpegts.js players
 # nginx proxies incoming requests on port 80 to broadcast server on 8081
-ffmpeg -err_detect ignore_err -listen 1 -i tcp://0.0.0.0:5000 -c:v libsvtav1 -g 60 -preset 10 -c:a aac -ac 2 -f mpegts - | ffmpeg -i pipe: \
--c copy -f hls -hls_time 2 -hls_list_size 2000 -hls_start_number_source epoch -hls_segment_type fmp4 -hls_flags delete_segments /tmp/hls/tv.m3u8 \
+ffmpeg -err_detect ignore_err -listen 1 -i tcp://0.0.0.0:5000 -c:v libx265 -preset fast -c:a aac -ac 2 -f mpegts - | ffmpeg -i pipe: \
+-c copy -f hls -hls_time 2 -hls_list_size 2000 -hls_start_number_source epoch -hls_segment_type mpegts -hls_flags delete_segments /tmp/hls/tv.m3u8 \
 -c copy -f mpegts - | node /root/tv/broadcast.js
 
 
