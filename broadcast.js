@@ -1,7 +1,7 @@
 const http = require("http");
 const sockets = new Map();
 
-//ffmpeg -err_detect ignore_err -i rtmp://localhost/live/tv -c:v copy -c:a copy -f mpegts - | node broadcast.js
+//ffmpeg -err_detect ignore_err -i rtmp://localhost:1935/live/tv -c:v copy -c:a copy -f mpegts - | node broadcast.js
 process.stdin.on('data', (data) => {
   for (let res of sockets.values()) {
       // console.log('wrote %s bytes to %s sockets', data.length, sockets.size);
