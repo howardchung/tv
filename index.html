@@ -1,40 +1,23 @@
 <html>
   <head>
-    <title>TV (ABC)</title>
+    <title>TV</title>
   </head>
 
   <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.2.1/hls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mpegts.js@1.7.3/dist/mpegts.min.js"></script>
 
-    <video style="height:100%;width:100%" id="video" controls></video>
+    <video style="height:100%;width:100%" id="video" controls muted></video>
 
     <script>
-	  var src = 'https://rtmp.howardchung.net/hls/abc.m3u8';
-      var video = document.getElementById('video');
-      if (Hls.isSupported()) {
-        var hls = new Hls({
-          debug: true,
-        });
-        hls.loadSource(src);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MEDIA_ATTACHED, async function () {
-          try {
-            await video.play();
-	  } catch (e) {
-            video.muted = true;
-            video.play();
-	  }
-        });
-      }
-      // hls.js is not supported on platforms that do not have Media Source Extensions (MSE) enabled.
-      // When the browser has built-in HLS support (check using `canPlayType`), we can provide an HLS manifest (i.e. .m3u8 URL) directly to the video element through the `src` property.
-      // This is using the built-in support of the plain video element, without using hls.js.
-      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = src;
-        video.addEventListener('canplay', function () {
-          video.play();
-        });
-      }
+    const player = mpegts.createPlayer({
+      isLive: true,
+      liveBufferLatencyChasing: true,
+      type: "mpegts",
+      url: "https://rtmp.howardchung.net/socket/",
+    });
+    player.attachMediaElement(document.getElementById("video"));
+    player.load();
+    player.play();
     </script>
   </body>
 </html>
