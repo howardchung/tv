@@ -8,7 +8,7 @@ process.stdin.on('data', (data) => {
       res.write(data);
   }
 });
-process.stdin.on('end', () => {
+process.stdin.on('close', () => {
   process.exit(0);
 });
 
