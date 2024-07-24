@@ -17,7 +17,13 @@
     });
     player.attachMediaElement(document.getElementById("video"));
     player.load();
-    player.play();
+    try {
+      player.play();
+    } catch (e) {
+      console.log('autoplay disabled, muting');
+      document.getElementById("video").muted = true;
+      player.play();
+    }
     </script>
   </body>
 </html>
