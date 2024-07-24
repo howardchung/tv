@@ -9,7 +9,7 @@ ffmpeg -err_detect ignore_err -listen 1 -i tcp://0.0.0.0:5000 -c:v libx265 -pres
 
 
 # As of July 2024 mpegts doesn't support av1 (planned in future)
-#-c:v libx264 -preset fast -crf 23 -x264-params keyint=60
+#-c:v libx264 -preset medium -crf 23 -x264-params keyint=60
 #-c:v libsvtav1 -g 60 -preset 10 (0 to 13)
 #-c:v libx265 -preset faster
 #-vf scale=-1:320
