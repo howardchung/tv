@@ -12,8 +12,9 @@
     const player = mpegts.createPlayer({
       isLive: true,
       liveBufferLatencyChasing: true,
+      enableStashBuffer: false,
       type: "mpegts",
-      url: "https://rtmp.howardchung.net/socket/",
+      url: "https://rtmp.howardchung.net/mpegts",
     });
     player.attachMediaElement(document.getElementById("video"));
     player.load();
