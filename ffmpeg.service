@@ -1,0 +1,16 @@
+[Unit]
+Description="ffmpeg setup, save in /etc/systemd/system/ffmpeg.service, systemctl enable ffmpeg.service, systemctl start ffmpeg.service"
+
+[Service]
+ExecStart=bash /home/root/tv/ffmpeg.sh
+WorkingDirectory=/home/root
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=FFMPEG
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+
