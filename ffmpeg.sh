@@ -5,7 +5,7 @@ ffmpeg -err_detect ignore_err -listen 1 -i tcp://0.0.0.0:5000 -c:v libx264 -pres
 -c copy -f hls -hls_time 2 hls_list_size 2000 -hls_flags delete_segments -hls_start_number_source epoch /tmp/hls/tv.m3u8 \
 #serve stream over http for mpegts.js players
 # nginx proxies incoming requests on port 80 to broadcast server on 8081
--c copy -f mpegts - | node /root/broadcast.js
+-c copy -f mpegts - | node /root/tv/broadcast.js
 
 
 # As of July 2024 mpegts doesn't support av1 (planned in future)
