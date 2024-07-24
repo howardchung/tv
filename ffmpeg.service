@@ -2,8 +2,8 @@
 Description="ffmpeg setup, save in /etc/systemd/system/ffmpeg.service, systemctl enable ffmpeg.service, systemctl start ffmpeg.service"
 
 [Service]
-ExecStart=bash /home/root/tv/ffmpeg.sh
-WorkingDirectory=/home/root
+ExecStart=bash /root/tv/ffmpeg.sh
+WorkingDirectory=/root
 Restart=always
 RestartSec=5
 StandardOutput=syslog
