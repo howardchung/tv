@@ -12,4 +12,5 @@ ffmpeg -err_detect ignore_err -listen 1 -i tcp://0.0.0.0:5000 -c:v libx264 -pres
 # As of July 2024 mpegts doesn't support av1 (planned in future)
 #-c:v libsvtav1 -g 60 -preset 10 (0 to 13)
 #-c:v libx265 -preset fast
+#-vf scale=-1:320
 # could also transcode to multiple resolutions and save to separate hls streams
