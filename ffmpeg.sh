@@ -4,7 +4,7 @@
 #mpegts stream over http for mpegts.js players
 # nginx proxies incoming requests on port 80 to broadcast server on 8081
 ffmpeg -err_detect ignore_err -listen 1 -i tcp://0.0.0.0:5000 -c:v libx264 -preset fast -crf 23 -x264-params keyint=60 -c:a aac -ac 2 -f mpegts - | ffmpeg -i pipe: \
--c copy -f hls -hls_time 2 -hls_segment_type fmp4 /tmp/hls/tv.m3u8 \
+-c copy -f hls -hls_time 2 -hls_segment_type fmp4 -hls_flags single_file /tmp/hls/tv.m3u8 \
 -c copy -f mpegts - | node /root/tv/broadcast.js
 
 
