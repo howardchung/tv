@@ -14,6 +14,6 @@ ffmpeg -err_detect ignore_err -listen 1 -i tcp://0.0.0.0:5000 -c:v libx264 -pres
 #-f mp4 -movflags frag_keyframe+empty_moov
 #-c:v libx264 -preset fast -g 60 -keyint_min 60
 #-c:v libsvtav1 -g 60 -preset 11
-#-c:v libx265 -preset veryfast -x265-params "keyint=120:min-keyint=120"
+#-c:v libx265 -preset veryfast -x265-params "keyint=60:min-keyint=60"
 # could also transcode to multiple resolutions and save to separate hls streams
 #-vf scale=-1:320
