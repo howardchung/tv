@@ -9,18 +9,47 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
     <script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
-
+  <style>
+    .wrapper {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+  }
+  video {
+    width: 100%;
+    max-height: 50vh;
+  }
+  .vjs-default-skin {
+    width: 100%;
+    max-height: 45vh;
+  }
+  </style>
+    <div class="wrapper">
+    <div>
     <h3>mpegts.js</h3>
-    <video style="height:50%;width:50%" id="video1" controls></video>
+    <video id="video1" controls></video>
+  </div>
+  <div>
     <h3>hls.js</h3>
-    <video style="height:50%;width:50%" id="video2" controls></video>
+    <video id="video2" controls muted></video>
+  </div>
+  <div>
     <h3>dash.js</h3>
-    <video style="height:50%;width:50%" id="video3" controls></video>
+    <video data-dashjs-player autoplay src="https://rtmp.howardchung.net/dash/tv.mpd" id="video3" controls muted></video>
+  </div>
+  <div>
     <h3>video.js HLS</h3>
-    <video style="height:50%;width:50%" class="video-js" src="https://rtmp.howardchung.net/hls/tv.m3u8" id="video4" controls preload="auto"></video>
+    <video-js class="vjs-default-skin" id="video4" controls muted>
+      <source src="https://rtmp.howardchung.net/hls/tv.m3u8"></source>
+    </video-js>
+  </div>
+  <div>
     <h3>video.js DASH</h3>
-    <video style="height:50%;width:50%" class="video-js" src="https://rtmp.howardchung.net/dash/tv.mpd" id="video5" controls preload="auto"></video>
-
+    <video-js class="vjs-default-skin" id="video5" controls muted>
+      <source src="https://rtmp.howardchung.net/dash/tv.mpd"></source>
+    </video-js>
+  </div>
+  </div>
     <script type="module">
     const mpegtsPlayer = mpegts.createPlayer({
       isLive: true,
@@ -41,14 +70,10 @@
     hls.on(Hls.Events.MANIFEST_PARSED, function() {
       tryPlay(video2);
     });
-
-   const dash = dashjs.MediaPlayer().create();
-   const video3 = document.getElementById("video3");
-   dash.initialize(video3, 'https://rtmp.howardchung.net/dash/tv.mpd', true);
-   tryPlay(video3);
-
-   tryPlay(video4);
-   tryPlay(video5);
+    const vjs1 = videojs('video4');
+    vjs1.play();
+    const vjs2 = videojs('video5');
+    vjs2.play();
     
    async function tryPlay(vidEl) {
       try {
