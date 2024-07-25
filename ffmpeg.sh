@@ -4,7 +4,7 @@
 # mpegts stream over http for mpegts.js players
 # nginx proxies incoming requests on port 80 to broadcast server on 8081
 # crazy lavfi filter to extract eia-608 subtitles from video stream and make separate stream
-nc -l 5000 | ffmpeg -f lavfi -i "movie=pipe\\\:[out0+subcc],amovie=pipe\\\:[out1]" -c:v libx264 -preset fast -g 60 -keyint_min 60 -c:a aac -ac 2 -c:s mov_text -f mp4 -movflags empty_moov+frag_keyframe - | ffmpeg -i pipe: \
+nc -l 5000 | ffmpeg -err_detect ignore_err -f lavfi -i "movie=pipe\\\:[out0+subcc],amovie=pipe\\\:[out1]" -c:v libx264 -preset fast -g 60 -keyint_min 60 -c:a aac -ac 2 -c:s mov_text -f mp4 -movflags empty_moov+frag_keyframe - | ffmpeg -err_detect ignore_err -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 2000 -hls_start_number_source epoch -hls_flags delete_segments -hls_segment_type fmp4 /tmp/hls/tv.m3u8 \
 -c copy -f dash -adaptation_sets "id=0,streams=v id=1,streams=a" -window_size 2000 -frag_duration 2 /tmp/dash/tv.mpd \
 -c copy -f mpegts - | node /root/tv/broadcast.js
