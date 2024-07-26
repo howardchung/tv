@@ -82,10 +82,10 @@ https://cdn.jsdelivr.net/npm/umataste@0.0.1/dist/umataste.min.js
     const vjs2 = videojs('video5');
     vjs2.play();
 
-    const video6 = document.getElementbyId("video6");
     const zlplayer = new window.umataste.MSEPlayer({ 
       // some options
     });
+    const video6 = document.getElementById('video6');
     zlplayer.attachMedia(video6);
     await zlplayer.load("https://rtmp.howardchung.net/fmp4");
     tryPlay(video6);
