@@ -22,7 +22,7 @@ const server = http.createServer((req, res) => {
     });
 });
 const host = '0.0.0.0';
-const port = 8081;
+const port = process.argv[2] || 8081;
 server.listen(port, host, () => {
     console.log(`Server is running on http://${host}:${port}`);
 });
