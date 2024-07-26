@@ -3,9 +3,9 @@
 # HLS for hls.js players, serve segments with nginx (same for DASH)
 # mpegts stream over http for mpegts.js players
 # nginx proxies incoming requests on port 80 to broadcast server on 8081
+#| tee >(node /root/tv/broadcast.js 8080) \
 
 nc -l 5000 \
-| tee >(node /root/tv/broadcast.js 8080) \
 | ffmpeg -err_detect ignore_err -f mpegts -i pipe: -c:v libx264 -preset veryfast -g 60 -keyint_min 60 -c:a aac -ac 2 -c:s mov_text -f mp4 -movflags empty_moov+frag_keyframe+default_base_moof - \
 | ffmpeg -err_detect ignore_err -f mp4 -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 2000 -hls_start_number_source epoch -hls_flags delete_segments -hls_segment_type fmp4 /var/www/hls/tv.m3u8 \
