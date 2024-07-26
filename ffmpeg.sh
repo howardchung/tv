@@ -5,7 +5,7 @@
 # nginx proxies incoming requests on port 80 to broadcast server on 8081
 nc -l 5000 | ffmpeg -i pipe: -c:v libx264 -preset veryfast -g 60 -keyint_min 60 -c:a aac -ac 2 -c:s mov_text -f mp4 -movflags empty_moov+frag_keyframe - | ffmpeg -err_detect ignore_err -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 2000 -hls_start_number_source epoch -hls_flags delete_segments -hls_segment_type fmp4 /var/www/hls/tv.m3u8 \
--c copy -f dash -adaptation_sets "id=0,descriptor=<Accessibility schemeIdUri=\"urn:scte:dash:cc:cea-608:2015\" value=\"CC1=eng\"/>,streams=v id=1,streams=a" -window_size 2000 -frag_duration 2 /var/www/dash/tv.mpd \
+-c copy -f dash -adaptation_sets "id=0,streams=v id=1,streams=a" -window_size 2000 -frag_duration 2 /var/www/dash/tv.mpd \
 -c copy -f mpegts - | node /root/tv/broadcast.js 8081
 
 
@@ -13,6 +13,7 @@ nc -l 5000 | ffmpeg -i pipe: -c:v libx264 -preset veryfast -g 60 -keyint_min 60 
 # apple hls spec says only fmp4 is supported for x265 or av1 content
 # subtitles don't work by default with fmp4: -c:s mov_text
 # subtitles don't seem to be muxed properly when using av1
+# when using DASH subtitles need to be declared in mpd: descriptor=<Accessibility schemeIdUri=\"urn:scte:dash:cc:cea-608:2015\" value=\"CC1=eng\"/>
 # output fmp4 stream: -f mp4 -movflags frag_keyframe+empty_moov
 # tested working presets for 3 amd cores (cpx series)
 #-c:v libx264 -preset fast -g 60 -keyint_min 60
