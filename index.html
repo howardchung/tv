@@ -9,6 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
     <script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
+    <script src="
+https://cdn.jsdelivr.net/npm/umataste@0.0.1/dist/umataste.min.js
+"></script>
   <style>
     .wrapper {
       display: grid;
@@ -36,6 +39,10 @@
   <div>
     <h3>dash.js</h3>
     <video data-dashjs-player autoplay src="https://rtmp.howardchung.net/dash/tv.mpd" id="video3" controls muted></video>
+  </div>
+  <div>
+    <h3>umataste (fmp4)</h3>
+    <video id="video6" controls></video>
   </div>
   <div>
     <h3>video.js HLS</h3>
@@ -74,6 +81,14 @@
     vjs1.play();
     const vjs2 = videojs('video5');
     vjs2.play();
+
+    const zlplayer = new window.umataste.MSEPlayer({ 
+      // some options
+    });
+    const video6 = document.getElementbyId("video6");
+    zlplayer.attachMedia(video6);
+    await zlplayer.load("https://rtmp.howardchung.net/fmp4");
+    tryPlay(video6);
     
    async function tryPlay(vidEl) {
       try {
