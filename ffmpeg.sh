@@ -11,7 +11,6 @@ nc -l 5000 \
 -c copy -f hls -hls_time 2 -hls_list_size 2000 -hls_start_number_source epoch -hls_flags delete_segments -hls_segment_type fmp4 /var/www/hls/tv.m3u8 \
 -c copy -f dash -adaptation_sets "id=0,streams=v id=1,streams=a" -window_size 2000 -frag_duration 2 /var/www/dash/tv.mpd \
 -c copy -f mpegts - \
-| ffmpeg -err_detect ignore_err -f mpegts -i pipe: -c copy -f mpegts - \
 | tee >(node /root/tv/broadcast.js 8081)
 | ffmpeg -err_detect ignore_err -f mpegts -i pipe: -copy -f mp4 -movflags empty_moov+frag_keyframe+default_base_moof - \
 | node /root/tv/broadcast.js 8082
