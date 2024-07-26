@@ -5,7 +5,7 @@
 # nginx proxies incoming requests on port 80 to broadcast server on 8081
 nc -l 5000 | ffmpeg -i pipe: -c:v libx264 -preset veryfast -g 60 -keyint_min 60 -c:a aac -ac 2 -c:s mov_text -f mp4 -movflags empty_moov+frag_keyframe - | ffmpeg -err_detect ignore_err -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 2000 -hls_start_number_source epoch -hls_flags delete_segments -hls_segment_type fmp4 /var/www/hls/tv.m3u8 \
--c copy -f dash -adaptation_sets "id=0,descriptor=<Accessibility schemeIdURI=\"urn:scte:dash:cc:cea-608:2015\" value=\"CC1=eng\"/>,streams=v id=1,streams=a" -window_size 2000 -frag_duration 2 /var/www/dash/tv.mpd \
+-c copy -f dash -adaptation_sets "id=0,descriptor=<Accessibility schemeIdUri=\"urn:scte:dash:cc:cea-608:2015\" value=\"CC1=eng\"/>,streams=v id=1,streams=a" -window_size 2000 -frag_duration 2 /var/www/dash/tv.mpd \
 -c copy -f mpegts - | node /root/tv/broadcast.js 8081
 
 
