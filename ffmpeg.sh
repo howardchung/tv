@@ -14,8 +14,7 @@ nc -l 5000 \
 | ffmpeg -err_detect ignore_err -f mpegts -i pipe: -c copy -f mpegts - \
 | tee >(node /root/tv/broadcast.js 8081)
 | ffmpeg -err_detect ignore_err -f mpegts -i pipe: -copy -f mp4 -movflags empty_moov+frag_keyframe+default_base_moof - \
-| tee >(node /root/tv/broadcast.js 8082) \
-> /dev/null
+| node /root/tv/broadcast.js 8082
 
 # As of July 2024 mpegts doesn't support av1 (planned in future)
 # apple hls spec says only fmp4 is supported for x265 or av1 content
