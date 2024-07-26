@@ -6,7 +6,7 @@
 # add base64 encoded accessibility xml for cea-618 subtitles: <Accessibility schemeIdURI="urn:scte:dash:cc:cea-618:2015" value="CC1=eng">
 nc -l 5000 | ffmpeg -i pipe: -c:v libx264 -preset veryfast -g 60 -keyint_min 60 -c:a aac -ac 2 -c:s mov_text -f mp4 -movflags empty_moov+frag_keyframe - | ffmpeg -err_detect ignore_err -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 2000 -hls_start_number_source epoch -hls_flags delete_segments -hls_segment_type fmp4 /var/www/hls/tv.m3u8 \
--c copy -f dash -adaptation_sets "id=0,streams=v,descriptor=PEFjY2Vzc2liaWxpdHkgc2NoZW1lSWRVUkk9InVybjpzY3RlOmRhc2g6Y2M6Y2VhLTYxODoyMDE1IiB2YWx1ZT0iQ0MxPWVuZyI+ id=1,streams=a" -window_size 2000 -frag_duration 2 /var/www/dash/tv.mpd \
+-c copy -f dash -adaptation_sets "id=0,descriptor=PEFjY2Vzc2liaWxpdHkgc2NoZW1lSWRVUkk9InVybjpzY3RlOmRhc2g6Y2M6Y2VhLTYxODoyMDE1IiB2YWx1ZT0iQ0MxPWVuZyI+,streams=v id=1,streams=a" -window_size 2000 -frag_duration 2 /var/www/dash/tv.mpd \
 -c copy -f mpegts - | node /root/tv/broadcast.js 8081
 
 
