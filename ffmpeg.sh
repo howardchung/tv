@@ -7,7 +7,6 @@
 nc -l 5000 \
 | node /root/tv/broadcast.js 8080 \
 | ffmpeg -err_detect ignore_err -f mpegts -i pipe: -c:v libx264 -preset veryfast -g 60 -keyint_min 60 -c:a aac -ac 2 -c:s mov_text -f mp4 -movflags empty_moov+frag_keyframe - \
-| node /root/tv/broadcast.js 8082 \
 | ffmpeg -err_detect ignore_err -f mp4 -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 2000 -hls_start_number_source epoch -hls_flags delete_segments -hls_segment_type fmp4 /var/www/hls/tv.m3u8 \
 -c copy -f dash -adaptation_sets "id=0,streams=v id=1,streams=a" -window_size 2000 -frag_duration 2 /var/www/dash/tv.mpd \
