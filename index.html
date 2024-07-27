@@ -7,63 +7,79 @@
     <script src="https://cdn.jsdelivr.net/npm/mpegts.js@1.7.3/dist/mpegts.min.js"></script>
     <script src="http://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
     <script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
+    <link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
     <script src="
-https://cdn.jsdelivr.net/npm/umataste@0.0.1/dist/umataste.min.js
-"></script>
+    https://cdn.jsdelivr.net/npm/shaka-player@4.10.9/dist/shaka-player.compiled.min.js
+    "></script>
+  <link href="
+  https://cdn.jsdelivr.net/npm/shaka-player@4.10.9/dist/controls.min.css
+  " rel="stylesheet">
   <style>
     .wrapper {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
       gap: 10px;
-  }
-  video {
-    width: 100%;
-    max-height: 50vh;
-  }
-  .vjs-default-skin {
-    width: 100%;
-    max-height: 45vh;
-  }
+    }
+    video {
+      width: 100%;
+      height: 100%;
+    }
+    .vjs-default-skin {
+      width: 100%;
+      height: 100%;
+    }
   </style>
-    <div class="wrapper">
+  <div class="wrapper">
     <div>
-    <h3>mpegts.js</h3>
-    <video id="video1" controls></video>
-  </div>
-  <div>
-    <h3>hls.js</h3>
-    <video id="video2" controls muted></video>
-  </div>
-  <div>
-    <h3>dash.js</h3>
-    <video data-dashjs-player autoplay src="https://rtmp.howardchung.net/dash/tv.mpd" id="video3" controls muted></video>
-  </div>
-  <div>
-    <h3>umataste (fmp4)</h3>
-    <video id="video6" controls></video>
-  </div>
-  <div>
-    <h3>video.js HLS</h3>
-    <video-js class="vjs-default-skin" id="video4" controls muted>
-      <source src="https://rtmp.howardchung.net/hls/tv.m3u8"></source>
-    </video-js>
-  </div>
-  <div>
-    <h3>video.js DASH</h3>
-    <video-js class="vjs-default-skin" id="video5" controls muted>
-      <source src="https://rtmp.howardchung.net/dash/tv.mpd"></source>
-    </video-js>
-  </div>
+      <h3>mpegts.js</h3>
+      <video id="video1" controls></video>
+    </div>
+    <div>
+      <h3>hls.js</h3>
+      <video id="video2" controls muted></video>
+    </div>
+    <div>
+      <h3>dash.js</h3>
+      <video id="video3" controls muted></video>
+    </div>
+    <div>
+      <h3></h3>
+      <video id="video4" controls muted></video>
+    </div>
+    <div>
+      <h3>video.js HLS</h3>
+      <video class="vjs-default-skin" id="video5" controls muted></video>
+    </div>
+    <div>
+      <h3>video.js DASH</h3>
+      <video-js class="vjs-default-skin" id="video6" controls muted></video>
+    </div>
+    <div>
+      <h3>shaka mpegts</h3>
+      <video id="video7" controls muted></video>
+    </div>
+    <div>
+      <h3>shaka HLS</h3>
+      <video id="video8" controls muted></video>
+    </div>
+    <div>
+      <h3>shaka DASH</h3>
+      <video id="video9" controls muted></video>
+    </div>
   </div>
     <script type="module">
+    const mpegUrl = "https://rtmp.howardchung.net/mpegts";
+    const hlsUrl = 'https://rtmp.howardchung.net/hls/tv.m3u8';
+    const dashUrl = "https://rtmp.howardchung.net/dash/tv.mpd";
+      
     const mpegtsPlayer = mpegts.createPlayer({
       isLive: true,
       // liveBufferLatencyChasing: true,
       // enableStashBuffer: false,
       type: "mpegts",
-      url: "https://rtmp.howardchung.net/mpegts",
+      url: mpegUrl,
     });
     const video1 = document.getElementById("video1");
     mpegtsPlayer.attachMediaElement(video1);
@@ -72,23 +88,42 @@ https://cdn.jsdelivr.net/npm/umataste@0.0.1/dist/umataste.min.js
 
     const hls = new Hls();
     const video2 = document.getElementById("video2");
-    hls.loadSource('https://rtmp.howardchung.net/hls/tv.m3u8');
+    hls.loadSource(hlsUrl);
     hls.attachMedia(video2);
     hls.on(Hls.Events.MANIFEST_PARSED, function() {
       tryPlay(video2);
     });
-    const vjs1 = videojs('video4');
+
+    const dash1 = dashjs.MediaPlayer().create();
+    const video3 = document.getElementById('video3');
+    dash1.initialize(video3, dashUrl, true);
+
+    const video5 = document.getElementById('video5');
+    video5.src = hlsUrl;
+    const vjs1 = videojs(video5);
     vjs1.play();
-    const vjs2 = videojs('video5');
+    const video6 = document.getElementById('video6');
+    video6.src = dashUrl;
+    const vjs2 = videojs(video6);
     vjs2.play();
 
-    const zlplayer = new window.umataste.MSEPlayer({ 
-      // some options
-    });
-    const video6 = document.getElementById('video6');
-    zlplayer.attachMedia(video6);
-    await zlplayer.load("https://rtmp.howardchung.net/fmp4");
-    tryPlay(video6);
+    const video7 = document.getElementById('video7');
+    const shaka1 = new shaka.Player();
+    await shaka1.attach(video7);
+    await shaka1.load(mpegUrl);
+    tryPlay(video7);
+
+    const video8 = document.getElementById('video8');
+    const shaka1 = new shaka.Player();
+    await shaka1.attach(video8);
+    await shaka1.load(hlsUrl);
+    tryPlay(video8);
+    
+    const video9 = document.getElementById('video9');
+    const shaka1 = new shaka.Player();
+    await shaka1.attach(video9);
+    await shaka1.load(dashUrl);
+    tryPlay(video9);
     
    async function tryPlay(vidEl) {
       try {
