@@ -12,7 +12,7 @@ nc -l 5000 \
 | node /root/tv/broadcast.js 8081 \
 | ffmpeg -err_detect ignore_err -f mpegts -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 3000 -hls_start_number_source epoch -hls_flags delete_segments /var/www/hls/tv.m3u8 \
--c copy -c:s mov_text -f mp4 - \
+-c copy -c:s mov_text -f mp4 -movflags frag_keyframe+empty_moov - \
 | ffmpeg -err_detect ignore_err -f mp4 -i pipe: -c copy -f dash -window_size 3000 -frag_duration 2 -streaming 1 /var/www/dash/tv.mpd
 
 # As of July 2024 mpegts doesn't support av1 (planned in future)
