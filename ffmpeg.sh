@@ -9,7 +9,7 @@ nc -l 5000 \
 | node /root/tv/broadcast.js 8080 \
 | ffmpeg -err_detect ignore_err -f mpegts -i pipe: -c:v libx264 -preset veryfast -g 60 -keyint_min 60 -c:a aac -ac 2 -f mpegts - \
 | node /root/tv/broadcast.js 8081 \
-| ffmpeg -err_detect ignore_err -f mpegts -i pipe: -c copy -f dash -adaptation_sets "id=0,streams=v id=1,streams=a" -window_size 3000 -frag_duration 2 -streaming 1 hls_playlist 1 /var/www/dash/tv.mpd
+| ffmpeg -err_detect ignore_err -f mpegts -i pipe: -c copy -f dash -adaptation_sets "id=0,streams=v id=1,streams=a" -window_size 3000 -frag_duration 2 -streaming 1 -hls_playlist 1 /var/www/dash/tv.mpd
 
 # As of July 2024 mpegts doesn't support av1 (planned in future)
 # apple hls spec says only fmp4 is supported for x265 or av1 content
