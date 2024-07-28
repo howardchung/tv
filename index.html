@@ -19,8 +19,7 @@
     .wrapper {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      gap: 10px;
+      gap: 5px;
     }
     video {
       width: 100%;
@@ -29,6 +28,18 @@
     .vjs-default-skin {
       width: 100%;
       height: 100%;
+    }
+    .wrapper > div {
+      position: relative;
+      color: white;
+    }
+    h3 {
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      margin: 0;
+      padding: 0;
     }
   </style>
   <div class="wrapper">
@@ -45,16 +56,16 @@
       <video id="video3" controls muted></video>
     </div>
     <div>
-      <h3></h3>
+      <h3>EMPTY</h3>
       <video id="video4" controls muted></video>
     </div>
     <div>
       <h3>video.js HLS</h3>
-      <video class="vjs-default-skin" id="video5" controls muted></video>
+      <video class="video-js vjs-default-skin" id="video5" controls muted></video>
     </div>
     <div>
       <h3>video.js DASH</h3>
-      <video-js class="vjs-default-skin" id="video6" controls muted></video>
+      <video class="video-js vjs-default-skin" id="video6" controls muted></video>
     </div>
     <div>
       <h3>shaka mpegts</h3>
@@ -99,30 +110,34 @@
     dash1.initialize(video3, dashUrl, true);
 
     const video5 = document.getElementById('video5');
-    video5.src = hlsUrl;
-    const vjs1 = videojs(video5);
+    const vjs1 = videojs('video5');
+    vjs1.src(hlsUrl);
     vjs1.play();
     const video6 = document.getElementById('video6');
-    video6.src = dashUrl;
-    const vjs2 = videojs(video6);
+    const vjs2 = videojs('video6');
+    vjs2.src(dashUrl);
     vjs2.play();
 
     const video7 = document.getElementById('video7');
     const shaka1 = new shaka.Player();
     await shaka1.attach(video7);
-    await shaka1.load(mpegUrl);
+    try {
+      await shaka1.load(mpegUrl);
+    } catch (e) {
+      console.log(e);
+    }
     tryPlay(video7);
 
     const video8 = document.getElementById('video8');
-    const shaka1 = new shaka.Player();
-    await shaka1.attach(video8);
-    await shaka1.load(hlsUrl);
+    const shaka2 = new shaka.Player();
+    await shaka2.attach(video8);
+    await shaka2.load(hlsUrl);
     tryPlay(video8);
     
     const video9 = document.getElementById('video9');
-    const shaka1 = new shaka.Player();
-    await shaka1.attach(video9);
-    await shaka1.load(dashUrl);
+    const shaka3 = new shaka.Player();
+    await shaka3.attach(video9);
+    await shaka3.load(dashUrl);
     tryPlay(video9);
     
    async function tryPlay(vidEl) {
