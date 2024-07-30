@@ -24,6 +24,7 @@ const server = http.createServer((req, res) => {
     req.once('close', () => {
       console.error('deleting socket %s', rand);
       sockets.delete(rand);
+      res.end();
     });
 });
 const host = '0.0.0.0';
