@@ -9,7 +9,7 @@
 
 nc -l 5000 \
 | node /root/tv/broadcast.js 8080 \
-| ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset veryfast -g 60 -keyint_min 60 -c:a aac -ac 2 -c:s mov_text -f mp4 -movflags frag_keyframe+empty_moov+dash - \
+| ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset veryfast -g 60 -keyint_min 60 -c:a aac -ac 2 -c:s mov_text -r 30 -f mp4 -movflags frag_keyframe+empty_moov+dash - \
 | ffmpeg -err_detect ignore_err -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 4000 -hls_flags delete_segments+append_list -hls_segment_type fmp4 /var/www/hls/tv.m3u8 \
 -c copy -f mpegts - \
