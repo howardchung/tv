@@ -2,8 +2,7 @@ tv
 ----
 Experiments in streaming TV over the Internet using a closet Linux server
 
-* Hardware is required for this project: A ATSC (US) digital TV Tuner and antenna
-* I recommend the Hauppauge WinTV dualHD tuner (works with Linux)
+* Hardware is required for this project: ATSC (US) Digital TV tuner and antenna. I recommend the Hauppauge WinTV dualHD tuner (works with Linux)
 * `w_scan2` is used to generate a local channel list (channels.conf)
 * `tv.py` uses the `dvbv5-zap` Linux tool to capture input from the tuner and `nc` to a cloud server for distribution and transcoding
 * The currently selected channel is set using a specific WatchParty room's data, if a change is detected, the capture is restarted
