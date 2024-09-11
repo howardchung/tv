@@ -4,7 +4,7 @@
 # mpegts stream over http for mpegts.js players
 # nginx proxies incoming requests on port 80 to broadcast server on 8081
 
-nc -l 5000 -k \
+nc -l 5000 -q 10 \
 | node /root/tv/broadcast.js 8080 \
 | ffmpeg -err_detect ignore_err -i pipe: -c:v libsvtav1 -g 60 -preset 11 -c:a aac -ac 2 -c:s mov_text -r 30 -f mp4 -movflags frag_keyframe+empty_moov - \
 | ffmpeg -err_detect ignore_err -i pipe: \
