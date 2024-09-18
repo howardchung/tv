@@ -6,7 +6,7 @@
 
 nc -k -l 5000 -q 10 \
 | node /root/tv/broadcast.js 8080 \
-| ffmpeg -err_detect ignore_err -i pipe: -c:v libsvtav1 -g 60 -preset 11 -c:a aac -ac 2 -c:s mov_text -r 30 -f mp4 -movflags frag_keyframe+empty_moov - \
+| ffmpeg -err_detect ignore_err -f mpegts -i pipe: -c:v libsvtav1 -g 60 -preset 11 -c:a aac -ac 2 -c:s mov_text -r 30 -f mp4 -movflags frag_keyframe+empty_moov - \
 | ffmpeg -err_detect ignore_err -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 7200 -hls_flags delete_segments -hls_segment_type fmp4 /var/www/hls/tv.m3u8 \
 -c copy -f dash -seg_duration 2 -window_size 150  /var/www/dash/tv.mpd \
