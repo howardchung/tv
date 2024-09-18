@@ -1,6 +1,7 @@
 const http = require("http");
 
 const server = http.createServer((req, res) => {
+  console.error('received connection');
   req.pipe(process.stdout);
 });
 const host = '0.0.0.0';
