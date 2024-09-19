@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #send
-dvbv5-zap --adapter=1 --input-format=ZAP -c channels.conf -o - "king-hd" | nc -u 5.161.147.222 5000
+dvbv5-zap --adapter=1 --input-format=ZAP -c channels.conf -o - "king-hd" | nc 5.78.115.83 5000
 # local encode
-dvbv5-zap --adapter=1 --input-format=ZAP -c channels.conf -o - "king-hd" | ffmpeg -i pipe: -c:v libsvtav1 -preset 12 -c:a aac -ac 2 -f mpegts - > /dev/null
+dvbv5-zap --adapter=1 --input-format=ZAP -c channels.conf -o - "king-hd" | ffmpeg -i pipe: -c:v libsvtav1 -preset 12 -c:a aac -ac 2 -f mpegts - | nc 5.78.115.83 5000
 # local hw encode
-dvbv5-zap --adapter=1 --input-format=ZAP -c channels.conf -o - "king-hd" | ffmpeg -hwaccel vaapi -vaapi_device /dev/dri/renderD128 -i pipe: -vf 'format=nv12,hwupload' -c:v h264_vaapi -b:v 4M -c:a aac -ac 2 -f mpegts - > /dev/null
+dvbv5-zap --adapter=1 --input-format=ZAP -c channels.conf -o - "king-hd" | ffmpeg -hwaccel vaapi -vaapi_device /dev/dri/renderD128 -i pipe: -vf 'format=nv12,hwupload' -c:v h264_vaapi -qp 24 -c:a aac -ac 2 -r 30 -f mp4 -movflags frag_keyframe+empty_moov - | nc 5.78.115.83 5000
 # local hw encode for modern intel might require h264_qsv instead of vaapi
 
 #receive
