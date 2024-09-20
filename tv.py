@@ -27,8 +27,7 @@ def launch(id):
     if not id:
         return
     #-vf scale=-1:720
-    #-vf fps=30
-    #stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -tune zerolatency -c:v libx264 -x264-params keyint=120 -preset ' + preset + ' -c:a aac -ac 1 -f flv rtmp://5.161.147.222/live/' + id, shell=True, preexec_fn=os.setsid)
+    #stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -c:v libx264 -preset ' + preset + ' -c:a aac -ac 2 -r 30 -f mp4 -movflags frag_keyframe+empty_moov - | nc 5.78.115.83 5000' + id, shell=True, preexec_fn=os.setsid)
     # Need to set env var since we're using old drivers (not iHD)
     os.environ["LIBVA_DRIVER_NAME"] = "i965"
     stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -hwaccel vaapi -vaapi_device /dev/dri/renderD128 -i pipe: -vf \'format=nv12,hwupload\' -c:v h264_vaapi -qp 26 -c:a aac -ac 2 -r 30 -f mp4 -movflags frag_keyframe+empty_moov - | nc 5.78.115.83 5000', shell=True, preexec_fn=os.setsid)
