@@ -14,7 +14,7 @@ except:
     adapter = "0"
 url = "https://backend.watchparty.me/roomData/tender-squirrel-reproduce"
 url2 = "https://backend.watchparty.me/roomData/alike-week-recognize"
-preset = "superfast"
+preset = "veryfast"
 
 def kill():
     global stream
@@ -27,10 +27,10 @@ def launch(id):
     if not id:
         return
     #-vf scale=-1:720
-    #stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -c:v libx264 -preset ' + preset + ' -c:a aac -ac 2 -r 30 -f mp4 -movflags frag_keyframe+empty_moov - | nc 5.78.115.83 5000' + id, shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -c:v libx264 -preset ' + preset + ' -c:a aac -ac 2 -r 30 -f mp4 -movflags frag_keyframe+empty_moov - | nc 5.78.115.83 5000' + id, shell=True, preexec_fn=os.setsid)
     # Need to set env var since we're using old drivers (not iHD)
     os.environ["LIBVA_DRIVER_NAME"] = "i965"
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -hwaccel vaapi -vaapi_device /dev/dri/renderD128 -i pipe: -vf \'format=nv12,hwupload\' -c:v h264_vaapi -qp 26 -c:a aac -ac 2 -r 30 -f mp4 -movflags frag_keyframe+empty_moov - | nc 5.78.115.83 5000', shell=True, preexec_fn=os.setsid)
+    #stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -hwaccel vaapi -vaapi_device /dev/dri/renderD128 -i pipe: -vf \'format=nv12,hwupload\' -c:v h264_vaapi -qp 26 -c:a aac -ac 2 -r 30 -f mp4 -movflags frag_keyframe+empty_moov - | nc 5.78.115.83 5000', shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     #return requests.get(url).json()["video"].split("/")[-1].split(".")[0]
