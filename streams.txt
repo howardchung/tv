@@ -2,3 +2,6 @@ https://rtmp.howardchung.net/hls/tv.m3u8?channel=komo
 https://rtmp.howardchung.net/hls/tv.m3u8?channel=king-hd
 https://rtmp.howardchung.net/hls/tv.m3u8?channel=kiro7
 https://rtmp.howardchung.net/hls/tv.m3u8?channel=fox13
+https://rtmp.howardchung.net/hls/tv.m3u8?channel=KCTS-HD
+https://rtmp.howardchung.net/hls/tv.m3u8?channel=KSTW-HD
+https://rtmp.howardchung.net/hls/tv.m3u8?channel=KUNS
