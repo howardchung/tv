@@ -1,4 +1,6 @@
 #!/bin/bash
+#sudo apt install dvb-tools
+#sudo apt install ffmpeg
 
 #send
 dvbv5-zap --adapter=1 --input-format=ZAP -c channels.conf -o - "king-hd" | nc 5.78.115.83 5000
