@@ -5,9 +5,9 @@
 # nginx proxies incoming requests on port 80 to broadcast server on 8081
 
 # libsvtav1 -g 60 -preset 11
-# | ffmpeg -err_detect ignore_err -i pipe: -c:v copy -c:a aac -ac 2 -r 30 -f mp4 -movflags frag_keyframe+empty_moov - \
+# | node /root/tv/broadcast.js 8080 \
 socat -T 15 TCP-LISTEN:5000,fork,max-children=1 - \
-| node /root/tv/broadcast.js 8080 \
+| ffmpeg -err_detect ignore_err -i pipe: -c:v copy -c:a copy -r 30 -f mp4 -movflags frag_keyframe+empty_moov - \
 | ffmpeg -err_detect ignore_err -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 7200 -hls_flags delete_segments -hls_segment_type fmp4 /var/www/hls/tv.m3u8 \
 -c copy -f dash -seg_duration 2 -window_size 150  /var/www/dash/tv.mpd \
