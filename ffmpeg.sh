@@ -29,3 +29,5 @@ socat -T 20 TCP-LISTEN:5000,fork,reuseaddr STDOUT \
 #-crf 25
 #-b:v 4M
 #-c:s mov_text
+# test converting eia subtitles to separate track (works but out of sync)
+#  ffmpeg -f lavfi -i "movie='http\://5.78.115.83\:8080'[out0+subcc],amovie='http\://5.78.115.83\:8080'[out1]" -map 0:v:0 -map 0:a:0 -map 0:s:0 -vcodec libx264 -acodec aac -scodec mov_text -f mp4 -movflags frag_keyframe+empty_moov test2.mp4
