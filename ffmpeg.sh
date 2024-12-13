@@ -5,7 +5,7 @@
 # nginx proxies incoming requests on port 80 to broadcast server on 8081
 
 # libsvtav1 -g 60 -preset 11
-socat -T 20 TCP-LISTEN:5000,fork,reuseaddr STDOUT \
+socat -T 20 TCP-LISTEN:5000 STDOUT \
 | node /root/tv/broadcast.js 8080 \
 | ffmpeg -err_detect ignore_err -i pipe: -c:v libsvtav1 -g 60 -preset 11 -c:a aac -ac 2 -r 30 -f mp4 -movflags frag_keyframe+empty_moov - \
 | ffmpeg -err_detect ignore_err -i pipe: \
