@@ -38,7 +38,7 @@ def launch(id):
 
 def getChannel():
     #return requests.get(url).json()["video"].split("/")[-1].split(".")[0]
-    return requests.get(url2).json()["video"].split("?channel=")[1]
+    return requests.get(url2).json()["video"].split("channel=")[1]
     
 atexit.register(kill)
 channel = launch(getChannel())
