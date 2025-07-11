@@ -7,7 +7,7 @@
 # | node /root/tv/broadcast.js 8080 \
 # libsvtav1 -g 60 -preset 11
 # socat -T 20 TCP-LISTEN:5000 STDOUT \
-ffmpeg -err_detect ignore_err -f flv -listen 1 -i rtmp://0.0.0.0:5000 -c:v copy -c:a aac -ac 2 -f mp4 -movflags frag_keyframe+empty_moov - \
+ffmpeg -err_detect ignore_err -f flv -listen 1 -i rtmp://0.0.0.0:5000 -c:v copy -c:a copy -f mp4 -movflags frag_keyframe+empty_moov - \
 | ffmpeg -err_detect ignore_err -i pipe: \
 -c copy -f hls -hls_time 2 -hls_list_size 3600 -hls_flags delete_segments -hls_segment_type fmp4 /var/www/hls/tv.m3u8 \
 -c copy -f dash -seg_duration 2 -window_size 150  /var/www/dash/tv.mpd \
