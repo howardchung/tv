@@ -26,7 +26,7 @@ def launch(id):
     if not id:
         return
     #-vf scale=-1:720
-    #-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -qp 26
+    #-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -qp 26 -g 60
     #-c:v libx264 -preset veryfast -x264-params "keyint=60:scenecut=0"
     #-c:v libx265 -preset ultrafast -x265-params "keyint=60:min-keyint=60"
     #-c:v libsvtav1 -g 60 -preset 12
