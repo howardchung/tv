@@ -1,7 +1,7 @@
-https://rtmp.howardchung.net/hls/tv.m3u8?channel=komo&name=abc
-https://rtmp.howardchung.net/hls/tv.m3u8?channel=king-hd&name=nbc
-https://rtmp.howardchung.net/hls/tv.m3u8?channel=kiro7&name=cbs
-https://rtmp.howardchung.net/hls/tv.m3u8?channel=fox13&name=fox
-https://rtmp.howardchung.net/hls/tv.m3u8?channel=KCTS-HD&name=pbs
-https://rtmp.howardchung.net/hls/tv.m3u8?channel=KSTW-HD&name=seattle11
-https://rtmp.howardchung.net/hls/tv.m3u8?channel=KUNS&name=cw
+https://rtmp.howardchung.net/hls/tv.m3u8?name=abc&channel=komo
+https://rtmp.howardchung.net/hls/tv.m3u8?name=nbc&channel=king-hd
+https://rtmp.howardchung.net/hls/tv.m3u8?name=cbs&channel=kiro7
+https://rtmp.howardchung.net/hls/tv.m3u8?name=fox&channel=fox13
+https://rtmp.howardchung.net/hls/tv.m3u8?name=pbs&channel=KCTS-HD
+https://rtmp.howardchung.net/hls/tv.m3u8?name=seattle11&channel=KSTW-HD
+https://rtmp.howardchung.net/hls/tv.m3u8?name=cw&channel=KUNS
