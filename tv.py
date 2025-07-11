@@ -34,7 +34,7 @@ def launch(id):
     #-f mpegts
     # Need to set env var since we're using old drivers (not iHD)
     os.environ["LIBVA_DRIVER_NAME"] = "i965"
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libsvtav1 -g 60 -preset 13 -c:a aac -ac 2 -r 30 -f mpegts tcp://5.78.115.83:5000', shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libsvtav1 -g 60 -preset 13 -c:a aac -ac 2 -r 30 -f nut tcp://5.78.115.83:5000', shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     #return requests.get(url).json()["video"].split("/")[-1].split(".")[0]
