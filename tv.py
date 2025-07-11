@@ -27,7 +27,7 @@ def launch(id):
         return
     #-vf scale=-1:720
     #-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -qp 26
-    #-c:v libx264 -preset superfast -x264-params "keyint=60:scenecut=0"
+    #-c:v libx264 -preset veryfast -x264-params "keyint=60:scenecut=0"
     #-c:v libx265 -preset ultrafast -x265-params "keyint=60:min-keyint=60"
     #-c:v libsvtav1 -g 60 -preset 12
     #-c:v copy
@@ -35,7 +35,7 @@ def launch(id):
     #-f mp4 -movflags frag_keyframe+empty_moov
     # Need to set env var since we're using old drivers (not iHD)
     os.environ["LIBVA_DRIVER_NAME"] = "i965"
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset superfast -b:v 3M -x264-params "keyint=60:scenecut=0" -c:a aac -ac 2 -r 30 -f flv rtmp://5.78.115.83:5000', shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset veryfast -b:v 3M -c:a aac -ac 2 -f flv rtmp://5.78.115.83:5000', shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     #return requests.get(url).json()["video"].split("/")[-1].split(".")[0]
