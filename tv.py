@@ -33,11 +33,11 @@ def launch(id):
     #-c:v copy
     #-f mpegts
     #-f mp4 -movflags frag_keyframe+empty_moov
-    #-f hls -hls_time 10 -hls_list_size 360 -hls_flags delete_segments -hls_segment_type fmp4 /mnt/tv.m3u8
+    #-f hls -hls_time 10 -hls_list_size 360 -hls_flags delete_segments -hls_segment_type fmp4 /mnt/watchparty-hls/tv.m3u8
     #-f flv rtmp://5.78.115.83:5000
     # Need to set env var since we're using old drivers (not iHD)
     os.environ["LIBVA_DRIVER_NAME"] = "i965"
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -qp 26 -g 300 -b:v 3M -c:a aac -ac 2 -r 30 -f hls -hls_time 10 -hls_list_size 360 -hls_flags delete_segments -hls_segment_type fmp4 /mnt/tv.m3u8', shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -c:v libx264 -preset veryfast -x264-params "keyint=300:scenecut=0" -b:v 3M -c:a aac -ac 2 -r 30 -f hls -hls_time 10 -hls_list_size 360 -hls_flags delete_segments -hls_segment_type fmp4 /mnt/watchparty-hls/tv.m3u8', shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     #return requests.get(url).json()["video"].split("/")[-1].split(".")[0]
