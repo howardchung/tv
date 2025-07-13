@@ -33,11 +33,11 @@ def launch(id):
     #-c:v copy
     #-f mpegts
     #-f mp4 -movflags frag_keyframe+empty_moov
-    #-f hls -hls_time 2 -hls_list_size 3600 -hls_flags delete_segments -hls_segment_type fmp4 -hls_start_number_source epoch /backblaze/tv.m3u8
+    #-f hls -hls_time 2 -hls_list_size 1800 -hls_flags delete_segments -hls_segment_type fmp4 /backblaze/tv.m3u8
     #-f flv rtmp://5.78.115.83:5000
     # Need to set env var since we're using old drivers (not iHD)
     os.environ["LIBVA_DRIVER_NAME"] = "i965"
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset superfast -x264-params "keyint=60:scenecut=0" -b:v 3M -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy -f hls -hls_time 2 -hls_list_size 1800 -hls_flags delete_segments -hls_segment_type fmp4 -hls_start_number_source epoch /backblaze/tv.m3u8', shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -err_detect ignore_err -i pipe: -c:v libx264 -preset veryfast -x264-params "keyint=60:scenecut=0" -b:v 3M -c:a aac -ac 2 -r 30 -f flv rtmp://5.78.115.83:5000', shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     #return requests.get(url).json()["video"].split("/")[-1].split(".")[0]
