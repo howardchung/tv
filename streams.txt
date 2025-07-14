@@ -1,7 +1,7 @@
-https://rtmp.howardchung.net/hls/tv.m3u8?name=abc&channel=komo
-https://rtmp.howardchung.net/hls/tv.m3u8?name=nbc&channel=king-hd
-https://rtmp.howardchung.net/hls/tv.m3u8?name=cbs&channel=kiro7
-https://rtmp.howardchung.net/hls/tv.m3u8?name=fox&channel=fox13
-https://rtmp.howardchung.net/hls/tv.m3u8?name=pbs&channel=KCTS-HD
-https://rtmp.howardchung.net/hls/tv.m3u8?name=seattle11&channel=KSTW-HD
-https://rtmp.howardchung.net/hls/tv.m3u8?name=cw&channel=KUNS
+https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=abc&channel=komo
+https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=nbc&channel=king-hd
+https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=cbs&channel=kiro7
+https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=fox&channel=fox13
+https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=pbs&channel=KCTS-HD
+https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=seattle11&channel=KSTW-HD
+https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=cw&channel=KUNS
