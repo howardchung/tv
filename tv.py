@@ -26,7 +26,7 @@ def launch(id):
     if not id:
         return
     #-vf scale=-1:720
-    #-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -g 60 -b:v 3M
+    #-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 60 -b:v 3M
     #-c:v libx264 -preset veryfast -x264-params "keyint=60:scenecut=0"
     #-c:v libx265 -preset superfast -x265-params "keyint=60:min-keyint=60"
     #-c:v libsvtav1 -g 60 -preset 12
@@ -38,7 +38,7 @@ def launch(id):
     # Need to set env var since we're using old drivers (not iHD)
     os.environ["LIBVA_DRIVER_NAME"] = "i965"
     subprocess.Popen('rm /mnt/watchparty-hls/*', shell=True)
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -g 60 -b:v 3M -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy -f hls -hls_time 18 -hls_list_size 200 -hls_flags delete_segments -hls_segment_type fmp4 /mnt/watchparty-hls/tv.m3u8', shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 60 -b:v 3M -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy -f hls -hls_time 18 -hls_list_size 200 -hls_flags delete_segments -hls_segment_type fmp4 /mnt/watchparty-hls/tv.m3u8', shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     #return requests.get(url).json()["video"].split("/")[-1].split(".")[0]
