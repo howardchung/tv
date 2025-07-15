@@ -34,7 +34,7 @@ def launch(id):
     #-f mpegts
     #-f mp4 -movflags frag_keyframe+empty_moov
     #-f hls -hls_time 10 -hls_list_size 360 -hls_flags delete_segments -hls_segment_type fmp4 /mnt/watchparty-hls/tv.m3u8
-    #-tag:a 10 -f dash -seg_duration 4 -window_size 900  /mnt/watchparty-hls/tv.mpd
+    #-tag:a mp4a -f dash -seg_duration 4 -window_size 900  /mnt/watchparty-hls/tv.mpd
     #-f flv rtmp://5.78.115.83:5000
     # Need to set env var since we're using old drivers (not iHD)
     #os.environ["LIBVA_DRIVER_NAME"] = "i965"
