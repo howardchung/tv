@@ -39,7 +39,7 @@ def launch(id):
     # Need to set env var since we're using old drivers (not iHD)
     #os.environ["LIBVA_DRIVER_NAME"] = "i965"
     subprocess.Popen('rm /mnt/watchparty-hls/*', shell=True)
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -c:v libsvtav1 -g 60 -preset 13 -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy -f dash -seg_duration 4 -window_size 900  /mnt/watchparty-hls/tv.mpd', shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -c:v libsvtav1 -g 60 -preset 13 -c:a aac -ac 2 -r 30 -f dash -seg_duration 4 -window_size 900  /mnt/watchparty-hls/tv.mpd', shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     #return requests.get(url).json()["video"].split("/")[-1].split(".")[0]
