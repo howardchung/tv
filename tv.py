@@ -15,7 +15,7 @@ except:
 
 url = "https://backend.watchparty.me/roomData/alike-week-recognize"
 if adapter == "1":
-    url = "https://backend.watchparty.me/roomData/tender-squirrel-reproduce"
+    url = "https://backend.watchparty.me/roomData/supreme-faucet-kneel"
 
 def kill():
     global stream
