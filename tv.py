@@ -35,8 +35,8 @@ def launch(id):
     encode4 = '-c:v libsvtav1 -g 60 -preset 12'
     encode5 = '-c:v copy'
     
-    container_hls = '-f hls -hls_time 8 -hls_list_size 5400 -hls_flags delete_segments'
-    container_dash = '-tag:v av01 -tag:a mp4a -f dash -seg_duration 8 -window_size 5400'
+    container_hls = '-f hls -hls_time 8 -hls_list_size 2700 -hls_flags delete_segments'
+    container_dash = '-tag:v av01 -tag:a mp4a -f dash -seg_duration 8 -window_size 2700'
     container3 = '-f flv'
     container4 = '-f mp4 -movflags frag_keyframe+empty_moov'
     
