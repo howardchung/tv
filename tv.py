@@ -12,17 +12,22 @@ try:
     adapter = sys.argv[1]
 except:
     adapter = "0"
-url = "https://backend.watchparty.me/roomData/tender-squirrel-reproduce"
-url2 = "https://backend.watchparty.me/roomData/alike-week-recognize"
+
+url = "https://backend.watchparty.me/roomData/alike-week-recognize"
+if adapter == "1":
+    url = "https://backend.watchparty.me/roomData/tender-squirrel-reproduce"
 
 def kill():
     global stream
     if stream != None:
         os.killpg(os.getpgid(stream.pid), signal.SIGTERM)
+        subprocess.Popen('rm /mnt/watchparty-hls/*', shell=True)
         stream = None
 
-def launch(id):
+def launch(idAndName):
     global stream
+    id = idAndName[0]
+    name = idAndName[1]
     if not id:
         return
     #-vf scale=-1:720
@@ -38,29 +43,29 @@ def launch(id):
     #-f flv rtmp://5.78.115.83:5000
     # Need to set env var since we're using old drivers (not iHD)
     #os.environ["LIBVA_DRIVER_NAME"] = "i965"
-    subprocess.Popen('rm /mnt/watchparty-hls/*', shell=True)
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -c:v libx264 -preset superfast -x264-params "keyint=60:scenecut=0" -b:v 3M -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy -f hls -hls_time 8 -hls_list_size 5400 -hls_flags delete_segments /mnt/watchparty-hls/tv.m3u8', shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: -c:v libx264 -preset superfast -x264-params "keyint=60:scenecut=0" -b:v 3M -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy -f hls -hls_time 8 -hls_list_size 5400 -hls_flags delete_segments /mnt/watchparty-hls/' + name + '.m3u8', shell=True, preexec_fn=os.setsid)
 
-def getChannel():
-    #return requests.get(url).json()["video"].split("/")[-1].split(".")[0]
-    return requests.get(url2).json()["video"].split("channel=")[1]
+def getChannelAndName():
+    data = requests.get(url).json()["video"]
+    return [data.split("channel=")[1], data.split(".m3u8")[0].split("/")[-1]]
     
 atexit.register(kill)
-channel = launch(getChannel())
+curr = getChannelAndName()
+launch(curr)
 # Repeat every 3 seconds
 while True:
     time.sleep(3)
     try:
-        new = getChannel()
+        new = getChannelAndName()
         # If different from current channel
         # stop the current stream and restart
-        if new != channel:
-            channel = new
+        if new[0] != curr[0]:
+            curr = new
             kill()
-            launch(new)
+            launch(curr)
         # If we are supposed to be streaming and process exited, restart
-        if new and stream and stream.poll() != None:
-            print(stream.poll())
-            launch(channel)
+        if new[0] and stream and stream.poll() != None:
+            # print(stream.poll())
+            launch(new)
     except Exception as e:
         print(e)
