@@ -24,10 +24,8 @@ def kill():
         subprocess.Popen('rm /mnt/watchparty-hls/*', shell=True)
         stream = None
 
-def launch(idAndName):
+def launch(id):
     global stream
-    id = idAndName[0]
-    name = idAndName[1]
     if not id:
         return
     #-vf scale=-1:720
@@ -49,26 +47,26 @@ def launch(idAndName):
     #os.environ["LIBVA_DRIVER_NAME"] = "i965"
     stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: ' + encode2 + ' -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
 
-def getChannelAndName():
+def getChannel():
     data = requests.get(url).json()["video"]
-    return [data.split("channel=")[1], data.split(".m3u8")[0].split("/")[-1]]
+    return data.split(".m3u8")[0].split("/")[-1]
     
 atexit.register(kill)
-curr = getChannelAndName()
+curr = getChannel()
 launch(curr)
 # Repeat every 3 seconds
 while True:
     time.sleep(3)
     try:
-        new = getChannelAndName()
+        new = getChannel()
         # If different from current channel
         # stop the current stream and restart
-        if new[0] != curr[0]:
+        if new != curr:
             curr = new
             kill()
             launch(curr)
         # If we are supposed to be streaming and process exited, restart
-        if new[0] and stream and stream.poll() != None:
+        if new and stream and stream.poll() != None:
             # print(stream.poll())
             launch(new)
     except Exception as e:
