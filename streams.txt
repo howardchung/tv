@@ -1,7 +1,7 @@
-https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=abc&channel=komo
-https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=nbc&channel=king-hd
-https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=cbs&channel=kiro7
-https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=fox&channel=fox13
-https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=pbs&channel=KCTS-HD
-https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=seattle11&channel=KSTW-HD
-https://f005.backblazeb2.com/file/watchparty-hls/tv.m3u8?name=cw&channel=KUNS
+https://f005.backblazeb2.com/file/watchparty-hls/abc.m3u8?channel=komo
+https://f005.backblazeb2.com/file/watchparty-hls/nbc.m3u8?channel=king-hd
+https://f005.backblazeb2.com/file/watchparty-hls/cbs.m3u8?channel=kiro7
+https://f005.backblazeb2.com/file/watchparty-hls/fox.m3u8?channel=fox13
+https://f005.backblazeb2.com/file/watchparty-hls/pbs.m3u8?channel=KCTS-HD
+https://f005.backblazeb2.com/file/watchparty-hls/seattle11.m3u8?channel=KSTW-HD
+https://f005.backblazeb2.com/file/watchparty-hls/cw.m3u8?channel=KUNS
