@@ -40,8 +40,8 @@ def launch(id):
     container3 = '-f flv'
     container4 = '-f mp4 -movflags frag_keyframe+empty_moov'
     
-    outname_hls = '/mnt/watchparty-hls/' + name + '.m3u8'
-    outname_dash = '/mnt/watchparty-hls/' + name + '.mpd'
+    outname_hls = '/mnt/watchparty-hls/' + id + '.m3u8'
+    outname_dash = '/mnt/watchparty-hls/' + id + '.mpd'
     outname3 = 'rtmp://5.78.115.83:5000'
     # Need to set env var since we're using old drivers (not iHD)
     #os.environ["LIBVA_DRIVER_NAME"] = "i965"
