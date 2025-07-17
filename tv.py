@@ -21,7 +21,6 @@ def kill():
     global stream
     if stream != None:
         os.killpg(os.getpgid(stream.pid), signal.SIGTERM)
-        subprocess.Popen('rm /mnt/watchparty-hls/*', shell=True)
         stream = None
 
 def launch(id):
@@ -45,6 +44,7 @@ def launch(id):
     outname3 = 'rtmp://5.78.115.83:5000'
     # Need to set env var since we're using old drivers (not iHD)
     os.environ["LIBVA_DRIVER_NAME"] = "i965"
+    subprocess.Popen('rm /mnt/watchparty-hls/' + id + '*', shell=True)
     stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: ' + encode2 + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
 
 def getChannel():
