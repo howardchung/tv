@@ -45,7 +45,7 @@ def launch(id):
     outname_dash = '/mnt/watchparty-hls/' + id + '.mpd'
     outname3 = 'rtmp://5.78.115.83:5000'
     # Need to set env var since we're using old drivers (not iHD)
-    os.environ["LIBVA_DRIVER_NAME"] = "iHD"
+    #os.environ["LIBVA_DRIVER_NAME"] = "iHD"
     #os.environ["LIBVA_DRIVER_NAME"] = "i965"
     #os.environ["LIBVA_DRIVER_NAME"] = "i915"
     subprocess.Popen('rm /mnt/watchparty-hls/' + id + '*', shell=True)
