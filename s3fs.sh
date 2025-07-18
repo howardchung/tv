@@ -7,4 +7,4 @@
 
 sudo -v ; curl https://rclone.org/install.sh | sudo bash
 rclone config
-rclone mount -v --exclude '*.tmp' backblaze:/ /mnt
+rclone mount -v backblaze:/ /mnt
