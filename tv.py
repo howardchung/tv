@@ -50,7 +50,7 @@ def launch(id):
     #os.environ["LIBVA_DRIVER_NAME"] = "i965"
     #os.environ["LIBVA_DRIVER_NAME"] = "i915"
     subprocess.Popen('rm /mnt/watchparty-hls/' + id + '*', shell=True)
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: ' + encode6 + ' -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: ' + encode4 + ' -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     data = requests.get(url).json()["video"]
