@@ -28,12 +28,13 @@ def launch(id):
     if not id:
         return
     #-vf scale=-1:720
-    encode1 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 60 -qp 28'
+    encode1 = '-c:v copy'
     encode2 = '-c:v libx264 -preset superfast -x264-params "keyint=60:scenecut=0" -crf 28'
     encode3 = '-c:v libx265 -preset superfast -x265-params "keyint=60:min-keyint=60"'
     encode4 = '-c:v libsvtav1 -g 60 -preset 12'
-    encode5 = '-c:v copy'
-    
+    encode5 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 60 -qp 28'
+    encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h265_vaapi -sei -a53_cc -g 60 -qp 28'
+
     container_hls = '-f hls -hls_time 10 -hls_list_size 1080 -hls_flags delete_segments'
     container_dash = '-f dash -seg_duration 6 -window_size 2400'
     #-tag:v av01 -tag:a mp4a 
