@@ -31,7 +31,7 @@ def launch(id):
     encode1 = '-c:v copy'
     encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=60:scenecut=0" -crf 28'
     encode3 = '-c:v libx265 -preset veryfast -x265-params "keyint=60:min-keyint=60"'
-    encode4 = '-c:v libsvtav1 -g 60 -preset 10'
+    encode4 = '-c:v libsvtav1 -g 60 -preset 11'
     encode5 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 60 -qp 28'
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 60'
     encode7 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v av1_vaapi -sei -a53_cc -g 60'
@@ -50,7 +50,7 @@ def launch(id):
     #os.environ["LIBVA_DRIVER_NAME"] = "i965"
     #os.environ["LIBVA_DRIVER_NAME"] = "i915"
     subprocess.Popen('rm /mnt/watchparty-hls/' + id + '*', shell=True)
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: ' + encode4 + ' -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: ' + encode3 + ' -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     data = requests.get(url).json()["video"]
