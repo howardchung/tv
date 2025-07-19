@@ -19,9 +19,10 @@ if adapter == "1":
 
 def kill():
     global stream
+    global curr
     if stream != None:
         os.killpg(os.getpgid(stream.pid), signal.SIGTERM)
-        subprocess.Popen('rm /mnt/watchparty-hls/' + id + '*', shell=True)
+        subprocess.Popen('rm /mnt/watchparty-hls/' + curr + '*', shell=True)
         stream = None
 
 def launch(id):
