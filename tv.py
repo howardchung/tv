@@ -47,7 +47,7 @@ def launch(id):
     outname_dash = '/mnt/watchparty-hls/' + id + '.mpd'
     outname3 = 'rtmp://5.78.115.83:5000'
 
-    encode = encode6
+    encode = encode2
     if adapter == "1":
         encode = encode6
     # Need to set env var since we're using old drivers (not iHD)
@@ -73,8 +73,8 @@ while True:
         # If different from current channel
         # stop the current stream and restart
         if new != curr:
-            curr = new
             kill()
+            curr = new
             launch(curr)
         # If we are supposed to be streaming and process exited, restart
         if new and stream and stream.poll() != None:
