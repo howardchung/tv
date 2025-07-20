@@ -31,7 +31,7 @@ def launch(id):
         return
     #-vf scale=-1:720
     encode1 = '-c:v copy'
-    encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=60:scenecut=0"' #-crf 28
+    encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=60:scenecut=0" -crf 28'
     encode3 = '-c:v libx265 -preset veryfast -x265-params "keyint=60:min-keyint=60"'
     encode4 = '-c:v libsvtav1 -g 60 -preset 11'
     encode5 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 60 -qp 28'
@@ -40,17 +40,21 @@ def launch(id):
 
     container_hls = '-f hls -hls_time 4 -hls_list_size 1800 -hls_flags delete_segments'
     container_dash = '-f dash -seg_duration 6 -window_size 1200' #-tag:v av01 -tag:a mp4a 
-    container3 = '-f flv'
-    container4 = '-f mp4 -movflags frag_keyframe+empty_moov'
+    container_flv = '-f flv'
+    container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
     
     outname_hls = '/mnt/watchparty-hls/' + id + '.m3u8'
     outname_dash = '/mnt/watchparty-hls/' + id + '.mpd'
     outname3 = 'rtmp://5.78.115.83:5000'
+
+    encode = encode2
+    if adapter == "1":
+        encode = encode5
     # Need to set env var since we're using old drivers (not iHD)
     #os.environ["LIBVA_DRIVER_NAME"] = "iHD"
     #os.environ["LIBVA_DRIVER_NAME"] = "i965"
     #os.environ["LIBVA_DRIVER_NAME"] = "i915"
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: ' + encode5 + ' -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     data = requests.get(url).json()["video"]
