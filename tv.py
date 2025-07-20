@@ -31,7 +31,7 @@ def launch(id):
         return
     #-vf scale=-1:720
     encode1 = '-c:v copy'
-    encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=60:scenecut=0" -crf 28'
+    encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=60:scenecut=0"' #-crf 28
     encode3 = '-c:v libx265 -preset veryfast -x265-params "keyint=60:min-keyint=60"'
     encode4 = '-c:v libsvtav1 -g 60 -preset 11'
     encode5 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 60 -qp 28'
