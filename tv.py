@@ -49,7 +49,7 @@ def launch(id):
 
     encode = encode2
     if adapter == "1":
-        encode = encode5
+        encode = encode6
     # Need to set env var since we're using old drivers (not iHD)
     #os.environ["LIBVA_DRIVER_NAME"] = "iHD"
     #os.environ["LIBVA_DRIVER_NAME"] = "i965"
