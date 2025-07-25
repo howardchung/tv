@@ -22,7 +22,6 @@ def kill():
     global curr
     if stream != None:
         os.killpg(os.getpgid(stream.pid), signal.SIGTERM)
-        subprocess.Popen('rm /mnt/watchparty-hls/' + curr + '*', shell=True)
         stream = None
 
 def launch(id):
@@ -50,10 +49,8 @@ def launch(id):
     encode = encode5
     if adapter == "1":
         encode = encode6
-    # Need to set env var since we're using old drivers (not iHD)
-    #os.environ["LIBVA_DRIVER_NAME"] = "iHD"
-    #os.environ["LIBVA_DRIVER_NAME"] = "i965"
-    #os.environ["LIBVA_DRIVER_NAME"] = "i915"
+    subprocess.Popen('rm /mnt/watchparty-hls/' + curr + '*', shell=True)
+    subprocess.Popen('rm /mnt/watchparty-hls/init.mp4', shell=True)
     stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -fflags +igndts -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
 
 def getChannel():
