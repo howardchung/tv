@@ -33,7 +33,7 @@ def launch(id):
     encode1 = '-c:v copy'
     encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=60:scenecut=0" -crf 26'
     encode3 = '-c:v libx265 -preset veryfast -x265-params "keyint=60:min-keyint=60"'
-    encode4 = '-c:v libsvtav1 -g 60 -preset 10'
+    encode4 = '-c:v libsvtav1 -g 60 -preset 9'
     encode5 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 60 -qp 26'
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 60 -qp 26'
     encode7 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v av1_vaapi -sei -a53_cc -g 60 -qp 26'
