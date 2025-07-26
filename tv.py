@@ -37,7 +37,7 @@ def launch(id):
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 60 -qp 26'
     encode7 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v av1_vaapi -sei -a53_cc -g 60 -qp 26'
 
-    container_hls = '-f hls -hls_time 4 -hls_list_size 3600 -hls_flags delete_segments' #-hls_segment_type fmp4
+    container_hls = '-f hls -hls_time 4 -hls_list_size 3600 -hls_flags delete_segments append_list' #-hls_segment_type fmp4
     container_dash = '-f dash -seg_duration 4 -window_size 900' #-tag:v av01 -tag:a mp4a 
     container_flv = '-f flv'
     container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
@@ -49,8 +49,8 @@ def launch(id):
     encode = encode5
     if adapter == "1":
         encode = encode6
-    subprocess.Popen('rm /mnt/watchparty-hls/' + curr + '*', shell=True)
-    subprocess.Popen('rm /mnt/watchparty-hls/init.mp4', shell=True)
+    #subprocess.Popen('rm /mnt/watchparty-hls/' + curr + '*', shell=True)
+    #subprocess.Popen('rm /mnt/watchparty-hls/init.mp4', shell=True)
     stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | ffmpeg -fflags +igndts -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
 
 def getChannel():
