@@ -7,4 +7,4 @@
 
 #sudo -v ; curl https://rclone.org/install.sh | sudo bash
 #rclone config
-rclone mount -v --vfs-cache-mode=writes --vfs-write-back=2s backblaze:/ /mnt
+rclone mount -v --vfs-cache-mode=writes --vfs-write-back=1s backblaze:/ /mnt
