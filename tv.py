@@ -37,7 +37,7 @@ def launch(id):
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 150 -qp 26'
     encode7 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v av1_vaapi -sei -a53_cc -g 150 -qp 26'
 
-    container_hls = '-f hls -hls_time 5 -hls_list_size 2000 -hls_flags append_list' # -hls_segment_type fmp4
+    container_hls = '-f hls -hls_time 5 -hls_list_size 2000 -hls_flags delete_segments+append_list' # -hls_segment_type fmp4
     container_dash = '-f dash -seg_duration 4 -window_size 900' #-tag:v av01 -tag:a mp4a 
     container_flv = '-f flv'
     container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
@@ -59,10 +59,9 @@ def getChannel():
         return data.split(".m3u8")[0].split("/")[-1]
     return ''
 
-# function to perform delete operation based on condition
-def check_and_delete(folder):
-    # folder is the name of the folder in which we have to perform the delete operation
-    folder = "/mnt/watchparty-hls"
+def check_and_delete():
+   # folder is the name of the folder in which we have to perform the delete operation
+   folder = "/mnt/watchparty-hls"
    # loop to check all files one by one 
    # os.walk returns 3 things: current path, files in the current path, and folders in the current path 
    for (root,dirs,files) in os.walk(folder, topdown=True):
@@ -98,5 +97,6 @@ while True:
         if new and stream and stream.poll() != None:
             # print(stream.poll())
             launch(new)
+        #check_and_delete()
     except Exception as e:
         print(e)
