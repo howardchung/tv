@@ -48,7 +48,7 @@ def launch(id):
 
     encode = encode6
     if adapter == "1":
-        encode = encode5
+        encode = encode6
     #subprocess.Popen('rm /mnt/watchparty-hls/' + curr + '*', shell=True)
     #subprocess.Popen('rm /mnt/watchparty-hls/init.mp4', shell=True)
     stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js 8080 | ffmpeg -fflags genpts+discardcorrupt -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 -f nut - | ffmpeg -i pipe: -c copy ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
