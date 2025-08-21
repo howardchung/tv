@@ -1,0 +1,15 @@
+[Unit]
+Description="tv setup, save in /etc/systemd/system/tv.service, systemctl enable tv.service, systemctl start tv.service"
+
+[Service]
+ExecStart=python3 /home/howard/tv/tv.py
+WorkingDirectory=/root
+Restart=always
+RestartSec=3
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=TV
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
