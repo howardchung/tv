@@ -1,7 +1,7 @@
-https://f005.backblazeb2.com/file/watchparty-hls/komo.m3u8?name=abc
-https://f005.backblazeb2.com/file/watchparty-hls/king-hd.m3u8?name=nbc
-https://f005.backblazeb2.com/file/watchparty-hls/kiro7.m3u8?name=cbs
-https://f005.backblazeb2.com/file/watchparty-hls/fox13.m3u8?name=fox
-https://f005.backblazeb2.com/file/watchparty-hls/kcts-hd.m3u8?name=pbs
-https://f005.backblazeb2.com/file/watchparty-hls/kstw-hd.m3u8?name=seattle11
-https://f005.backblazeb2.com/file/watchparty-hls/kuns.m3u8?name=cw
+https://home.howardchung.net/komo.m3u8?name=abc
+https://home.howardchung.net/king-hd.m3u8?name=nbc
+https://home.howardchung.net/kiro7.m3u8?name=cbs
+https://home.howardchung.net/fox13.m3u8?name=fox
+https://home.howardchung.net/kcts-hd.m3u8?name=pbs
+https://home.howardchung.net/kstw-hd.m3u8?name=seattle11
+https://home.howardchung.net/kuns.m3u8?name=cw
