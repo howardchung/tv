@@ -46,7 +46,7 @@ def launch(id):
     outname_dash = '/var/www/html/' + id + '.mpd'
     outname3 = 'rtmp://5.78.115.83:5000'
 
-    encode = encode2
+    encode = encode6
     if adapter == "1":
         encode = encode6
     port = str(8080 + int(adapter))
