@@ -42,8 +42,8 @@ def launch(id):
     container_flv = '-f flv'
     container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
     
-    outname_hls = '/mnt/watchparty-hls/' + id + '.m3u8'
-    outname_dash = '/mnt/watchparty-hls/' + id + '.mpd'
+    outname_hls = '/var/www/html/' + id + '.m3u8'
+    outname_dash = '/var/www/html/' + id + '.mpd'
     outname3 = 'rtmp://5.78.115.83:5000'
 
     encode = encode2
@@ -62,7 +62,7 @@ def getChannel():
 
 def check_and_delete():
    # folder is the name of the folder in which we have to perform the delete operation
-   folder = "/mnt/watchparty-hls"
+   folder = "/var/www/html"
    # loop to check all files one by one 
    # os.walk returns 3 things: current path, files in the current path, and folders in the current path 
    for (root,dirs,files) in os.walk(folder, topdown=True):
