@@ -48,7 +48,7 @@ def launch(id):
     port = str(8080 + int(adapter))
     #subprocess.run('rm /mnt/watchparty-hls/' + curr + '*', shell=True)
     #subprocess.run('rm /mnt/watchparty-hls/init.mp4', shell=True)
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js ' + port + ' | ffmpeg -xerror -fflags +genpts+igndts -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js ' + port + ' | ffmpeg -fflags +genpts+igndts -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, preexec_fn=os.setsid)
 
 def getChannel():
     data = requests.get(url).json()["video"]
