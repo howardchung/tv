@@ -3,7 +3,7 @@ Description="tv setup, save in /etc/systemd/system/tv.service, systemctl enable 
 
 [Service]
 ExecStart=python3 /home/howard/tv/tv.py
-WorkingDirectory=/root
+WorkingDirectory=/home/howard/tv
 Restart=always
 RestartSec=3
 StandardOutput=syslog
