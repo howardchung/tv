@@ -49,7 +49,7 @@ def launch(id):
     port = str(8080 + int(adapter))
     #subprocess.run('rm /mnt/watchparty-hls/' + curr + '*', shell=True)
     #subprocess.run('rm /mnt/watchparty-hls/init.mp4', shell=True)
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js ' + port + ' | ffmpeg -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=100)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js ' + port + ' | ffmpeg -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
 
 def getChannel():
     data = requests.get(url).json()["video"]
@@ -91,8 +91,7 @@ while True:
             kill()
         if stream and stream.poll() != None:
             kill()
-    line = stream.stdout.read(100)
+    line = stream.stdout.readline()
     print(line)
     if "Non-monotonous DTS" in line:
         kill()
-    #check_and_delete()
