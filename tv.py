@@ -49,7 +49,7 @@ def launch(id):
     port = str(8080 + int(adapter))
     #subprocess.run('rm /mnt/watchparty-hls/' + curr + '*', shell=True)
     #subprocess.run('rm /mnt/watchparty-hls/init.mp4', shell=True)
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js ' + port + ' | ffmpeg -fflags +igndts -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js ' + port + ' | ffmpeg -fflags +igndts -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
 
 def getChannel():
     data = requests.get(url).json()["video"]
@@ -82,17 +82,15 @@ launch(curr)
 # Repeat every 3 seconds
 while True:
     time.sleep(3)
-    try:
-        new = getChannel()
-        # If different from current channel, restart
-        if new != curr:
+    new = getChannel()
+    print(new)
+    # If different from current channel, restart
+    if new != curr:
+        kill()
+    if stream and stream.poll() != None:
+        kill()
+    for line in io.TextIOWrapper(stream.stdout, encoding="utf-8"):
+        print(line)
+        if line.contains("Non-monotonous DTS"):
             kill()
-        if stream and stream.poll() != None:
-            kill()
-        for line in io.TextIOWrapper(proc.stderr, encoding="utf-8"):
-            print(line)
-            if line.contains("Non-monotonous DTS"):
-                kill()
-        #check_and_delete()
-    except Exception as e:
-        print(e)
+    #check_and_delete()
