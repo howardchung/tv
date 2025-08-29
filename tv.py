@@ -91,6 +91,6 @@ while True:
         kill()
     for line in io.TextIOWrapper(stream.stdout, encoding="utf-8"):
         print(line)
-        if line.contains("Non-monotonous DTS"):
+        if "Non-monotonous DTS" in line:
             kill()
     #check_and_delete()
