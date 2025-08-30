@@ -93,5 +93,5 @@ while True:
             kill()
     line = stream.stdout.readline()
     print(line)
-    if "Non-monotonous DTS" in line:
+    if "Non-monotonic DTS" in line:
         kill()
