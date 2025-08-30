@@ -1,0 +1,15 @@
+[Unit]
+Description="tv2 setup, save in /etc/systemd/system/tv2.service, systemctl enable tv2.service, systemctl start tv2.service"
+
+[Service]
+ExecStart=python3 /home/howard/tv/tv.py 1
+WorkingDirectory=/home/howard/tv
+Restart=always
+RestartSec=3
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=TV2
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
