@@ -34,7 +34,7 @@ def launch(id):
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 30 -qp 26'
     encode7 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v av1_vaapi -sei -a53_cc -g 30 -qp 26'
 
-    container_hls = '-f hls -hls_time 3 -hls_list_size 5000 -hls_flags delete_segments+append_list' # -hls_segment_type fmp4
+    container_hls = '-f hls -hls_time 3 -hls_list_size 7000 -hls_flags delete_segments+append_list' # -hls_segment_type fmp4
     container_dash = '-f dash -seg_duration 3 -window_size 1000' #-tag:v av01 -tag:a mp4a 
     container_flv = '-f flv'
     container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
