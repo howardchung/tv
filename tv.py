@@ -14,6 +14,7 @@ except:
     adapter = "0"
 
 stream: subprocess.Popen = None
+basepath = '/var/www/html/'
 url = "https://backend.watchparty.me/roomData/alike-week-recognize"
 if adapter == "1":
     url = "https://backend.watchparty.me/roomData/supreme-faucet-kneel"
@@ -39,16 +40,14 @@ def launch(id):
     container_flv = '-f flv'
     container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
     
-    outname_hls = '/var/www/html/' + id + '.m3u8'
-    outname_dash = '/var/www/html/' + id + '.mpd'
+    outname_hls = basepath + id + '.m3u8'
+    outname_dash = basepath + id + '.mpd'
     outname3 = 'rtmp://5.78.115.83:5000'
 
     encode = encode6
     if adapter == "1":
         encode = encode6
     port = str(8080 + int(adapter))
-    #subprocess.run('rm /mnt/watchparty-hls/' + curr + '*', shell=True)
-    #subprocess.run('rm /mnt/watchparty-hls/init.mp4', shell=True)
     stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js ' + port + ' | ffmpeg -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, stderr=subprocess.PIPE, text=True)
 
 def getChannel():
@@ -59,7 +58,7 @@ def getChannel():
 
 def check_and_delete():
    # folder is the name of the folder in which we have to perform the delete operation
-   folder = "/var/www/html"
+   folder = basepath
    # loop to check all files one by one 
    # os.walk returns 3 things: current path, files in the current path, and folders in the current path 
    for (root,dirs,files) in os.walk(folder, topdown=True):
@@ -86,8 +85,10 @@ while True:
     if now - lastTime > 3:
         new = getChannel()
         lastTime = now
-        # If different from current channel, restart
+        # If different from current channel, delete old files and restart
         if new != curr:
+            subprocess.run('rm ' + basepath + curr + '*', shell=True)
+            #subprocess.run('rm ' + basepath + init.mp4', shell=True)
             kill()
         if stream and stream.poll() != None:
             kill()
