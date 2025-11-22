@@ -83,12 +83,11 @@ lastTime = time.time()
 while True:
     now = time.time()
     if now - lastTime > 3:
+        # delete files not matching current channel periodically
+        subprocess.run('find ' + basepath + ' -type f ! -name "' + curr + '*" -delete', shell=True)
         new = getChannel()
         lastTime = now
-        # If different from current channel, delete any existing files on the new channel and restart
         if new != curr:
-            subprocess.run('rm ' + basepath + new + '*', shell=True)
-            #subprocess.run('rm ' + basepath + init.mp4', shell=True)
             kill()
         if stream and stream.poll() != None:
             kill()
