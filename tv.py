@@ -84,7 +84,7 @@ while True:
     now = time.time()
     if now - lastTime > 3:
         # delete old files periodically
-        subprocess.run('find ' + basepath + '* -mtime +1 -exec rm {}', shell=True)
+        subprocess.run('find ' + basepath + '* -mtime +1 -exec rm {} \\', shell=True)
         new = getChannel()
         lastTime = now
         if new != curr:
