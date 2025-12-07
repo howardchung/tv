@@ -2,7 +2,7 @@
 Description="tv setup, save in /etc/systemd/system/tv.service, systemctl enable tv.service, systemctl start tv.service"
 
 [Service]
-ExecStart=python3 /home/howard/tv/tv.py
+ExecStart=python3 -u /home/howard/tv/tv.py
 WorkingDirectory=/home/howard/tv
 Restart=always
 RestartSec=3
