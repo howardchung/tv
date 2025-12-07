@@ -13,7 +13,7 @@ try:
 except:
     adapter = "0"
 
-stream: subprocess.Popen = None
+proc: subprocess.Popen = None
 basepath = '/var/www/html/'
 url = "https://backend.watchparty.me/roomData/alike-week-recognize"
 if adapter == "1":
@@ -23,7 +23,7 @@ def kill():
     sys.exit()
 
 def launch(id):
-    global stream
+    global proc
     if not id:
         return
     #-vf scale=-1:720
@@ -48,7 +48,7 @@ def launch(id):
     if adapter == "1":
         encode = encode6
     port = str(8080 + int(adapter))
-    stream = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js ' + port + ' | ffmpeg -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, stderr=subprocess.PIPE, text=True)
+    proc = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js ' + port + ' | ffmpeg -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, stderr=subprocess.PIPE, text=True)
 
 def getChannel():
     data = requests.get(url).json()["video"]
@@ -56,26 +56,6 @@ def getChannel():
         return data.split(".m3u8")[0].split("/")[-1]
     return ''
 
-def check_and_delete():
-   # folder is the name of the folder in which we have to perform the delete operation
-   folder = basepath
-   # loop to check all files one by one 
-   # os.walk returns 3 things: current path, files in the current path, and folders in the current path 
-   for (root,dirs,files) in os.walk(folder, topdown=True):
-       for f in files:
-           # temp variable to store path of the file 
-           file_path = os.path.join(root,f)
-           # get the timestamp, when the file was modified 
-           timestamp_of_file_modified = os.path.getmtime(file_path)
-           # convert timestamp to datetime
-           modification_date = datetime.datetime.fromtimestamp(timestamp_of_file_modified)
-           # find the number of hours when the file was modified
-           diff = datetime.datetime.now() - modification_date
-           if diff.total_seconds() > 6 * 3600:
-               # remove file 
-               os.remove(file_path)
-               print(f" Delete : {f}")
-               
 curr = getChannel()
 launch(curr)
 lastTime = time.time()
@@ -83,15 +63,19 @@ lastTime = time.time()
 while True:
     now = time.time()
     if now - lastTime > 3:
+        lastTime = now
         # delete old files periodically
         subprocess.run('find ' + basepath + '* -mtime +1 -delete', shell=True)
         new = getChannel()
-        lastTime = now
         if new != curr:
             kill()
-        if stream and stream.poll() != None:
+        if proc and proc.poll() != None:
+            # Process exited unexpectedly, restart
             kill()
-    line = stream.stderr.readline()
-    print(line)
-    if "Non-monotonic DTS" in line:
-        kill()
+    if proc:
+        line = proc.stderr.readline()
+        print(line)
+        if "Non-monotonic DTS" in line:
+            kill()
+    else:
+        time.sleep(1)
