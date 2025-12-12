@@ -52,9 +52,7 @@ def launch(id):
 
 def getChannel():
     data = requests.get(url).json()["video"]
-    if data:
-        return data.split(".m3u8")[0].split("/")[-1]
-    return ''
+    return data.split(".m3u8")[0].split("/")[-1]
 
 curr = getChannel()
 launch(curr)
@@ -66,12 +64,18 @@ while True:
         lastTime = now
         # delete old files periodically
         subprocess.run('find ' + basepath + '* -mtime +1 -delete', shell=True)
-        new = getChannel()
-        if new != curr:
-            kill()
-        if proc and proc.poll() != None:
-            # Process exited unexpectedly, restart
-            kill()
+        try:
+            new = getChannel()
+            if new != curr:
+                # New channel, restart
+                kill()
+            if proc and proc.poll() != None:
+                # Process unexpectedly has an exit code, restart
+                kill()
+        except Exception as e:
+            # Catch exceptions here to avoid restarting on HTTP errors, e.g. WatchParty restarts
+            print(e)
+            print("Exception fetching new channel, continuing")
     if proc:
         line = proc.stderr.readline()
         print(line)
