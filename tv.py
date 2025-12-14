@@ -28,14 +28,14 @@ def launch(id):
         return
     #-vf scale=-1:720
     encode1 = '-c:v copy'
-    encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=30:scenecut=0" -crf 26'
+    encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=30:scenecut=0" -crf 26 -g 30'
     encode3 = '-c:v libx265 -preset veryfast -x265-params "keyint=30"'
-    encode4 = '-c:v libsvtav1 -g 150 -preset 9'
+    encode4 = '-c:v libsvtav1 -g 30 -preset 9'
     encode5 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 30 -qp 26'
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 30 -qp 26'
     encode7 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v av1_vaapi -sei -a53_cc -g 30 -qp 26'
 
-    container_hls = '-f hls -hls_time 3 -hls_list_size 7000 -hls_flags delete_segments+append_list -hls_segment_type fmp4' # -hls_segment_type fmp4
+    container_hls = '-f hls -hls_time 3 -hls_list_size 7000 -hls_flags delete_segments+append_list -hls_segment_type fmp4 -strftime 1 -hls_fmp4_init_filename "%s_init.mp4"'
     container_dash = '-f dash -seg_duration 3 -window_size 1000' #-tag:v av01 -tag:a mp4a 
     container_flv = '-f flv'
     container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
