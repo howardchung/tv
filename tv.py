@@ -18,6 +18,7 @@ basepath = '/var/www/html/'
 url = "https://backend.watchparty.me/roomData/alike-week-recognize"
 if adapter == "1":
     url = "https://backend.watchparty.me/roomData/supreme-faucet-kneel"
+startTime = time.time()
 
 def kill():
     sys.exit()
@@ -79,7 +80,7 @@ while True:
     if proc:
         line = proc.stderr.readline()
         print(line)
-        if "Non-monotonic DTS" in line:
+        if "Non-monotonic DTS" in line and time.time() - startTime > 3600:
             kill()
     else:
         time.sleep(1)
