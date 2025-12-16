@@ -36,7 +36,7 @@ def launch(id):
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 30 -qp 26'
     encode7 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v av1_vaapi -sei -a53_cc -g 30 -qp 26'
 
-    container_hls = '-f hls -hls_time 3 -hls_list_size 7000 -hls_flags delete_segments+append_list -hls_segment_type fmp4 -strftime 1 -hls_fmp4_init_filename "%s_init.mp4"'
+    container_hls = f'-f hls -hls_time 3 -hls_list_size 7000 -hls_flags delete_segments+append_list -hls_segment_type fmp4 -hls_fmp4_init_filename "{id}_init.mp4"'
     container_dash = '-f dash -seg_duration 3 -window_size 1000' #-tag:v av01 -tag:a mp4a 
     container_flv = '-f flv'
     container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
@@ -49,7 +49,7 @@ def launch(id):
     if adapter == "1":
         encode = encode6
     port = str(8080 + int(adapter))
-    proc = subprocess.Popen('dvbv5-zap --adapter=' + adapter + ' --input-format=ZAP -c channels.conf -o - "' + id + '" | node broadcast.js ' + port + ' | ffmpeg -i pipe: ' + encode + ' -c:a aac -ac 2 -r 30 ' + container_hls + ' ' + outname_hls, shell=True, stderr=subprocess.PIPE, text=True)
+    proc = subprocess.Popen(f'dvbv5-zap --adapter={adapter} --input-format=ZAP -c channels.conf -o - "{id}" | node broadcast.js {port} | ffmpeg -i pipe: {encode} -c:a aac -ac 2 -r 30 {container_hls} {outname_hls}', shell=True, stderr=subprocess.PIPE, text=True)
 
 def getChannel():
     data = requests.get(url).json()["video"]
@@ -64,9 +64,9 @@ while True:
     if now - lastTime > 3:
         lastTime = now
         # delete old files periodically
-        # deleting * also removes mp4 init segments
-        subprocess.run('find ' + basepath + '/ -name "*.ts" -mmin +1440 -delete', shell=True)
-        subprocess.run('find ' + basepath + '/ -name "*.m4s" -mmin +1440 -delete', shell=True)
+        # deleting * also removes mp4 init segments, so touch them periodically
+        subprocess.run(f'touch {basepath}/*.mp4', shell=True)
+        subprocess.run(f'find {basepath}/ -name "*" -mmin +1440 -delete', shell=True)
 
         try:
             new = getChannel()
