@@ -64,7 +64,10 @@ while True:
     if now - lastTime > 3:
         lastTime = now
         # delete old files periodically
-        subprocess.run('find ' + basepath + '/ -name "*" -mmin +720 -delete', shell=True)
+        # deleting * also removes mp4 init segments
+        subprocess.run('find ' + basepath + '/ -name "*.ts" -mmin +1440 -delete', shell=True)
+        subprocess.run('find ' + basepath + '/ -name "*.m4s" -mmin +1440 -delete', shell=True)
+
         try:
             new = getChannel()
             if new != curr:
