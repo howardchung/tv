@@ -31,13 +31,13 @@ def launch(id):
     encode1 = '-c:v copy'
     encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=30:scenecut=0" -crf 26 -g 30'
     encode3 = '-c:v libx265 -preset veryfast -x265-params "keyint=30"'
-    encode4 = '-c:v libsvtav1 -g 30 -preset 9'
+    encode4 = '-c:v libsvtav1 -g 30 -preset 13' # -preset 9 for decent quality but requires a lot of CPU
     encode5 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 30 -qp 26'
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 30 -qp 26'
     encode7 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v av1_vaapi -sei -a53_cc -g 30 -qp 26'
 
     container_hls = f'-f hls -hls_time 3 -hls_list_size 7000 -hls_flags delete_segments+append_list -hls_segment_type fmp4 -hls_fmp4_init_filename "{id}_init.mp4"'
-    container_dash = '-f dash -seg_duration 3 -window_size 1000' #-tag:v av01 -tag:a mp4a 
+    container_dash = f'-f dash -seg_duration 3 -window_size 100 -init_seg_name "{id}_init_\$RepresentationID\$.\$ext\$" -media_seg_name "{id}_chunk_\$RepresentationID\$-\$Number\$.\$ext\$"' # -tag:v av01 -tag:v hvc1 -tag:a mp4a
     container_flv = '-f flv'
     container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
     
