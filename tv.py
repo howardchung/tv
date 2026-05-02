@@ -68,13 +68,15 @@ while True:
         subprocess.run(f'touch {basepath}/*.mp4', shell=True)
         subprocess.run(f'find {basepath}/ -name "*" -mmin +1440 -delete', shell=True)
 
+        print (proc.poll())
+        if proc and proc.poll() is not None:
+            # Process unexpectedly has an exit code, restart
+            kill()
+
         try:
             new = getChannel()
             if new != curr:
                 # New channel, restart
-                kill()
-            if proc and proc.poll() != None:
-                # Process unexpectedly has an exit code, restart
                 kill()
         except Exception as e:
             # Catch exceptions here to avoid restarting on HTTP errors, e.g. WatchParty restarts
