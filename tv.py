@@ -47,7 +47,7 @@ def launch(id):
 
     encode = encode6
     if adapter == "1":
-        encode = encode6
+        encode = encode2
     port = str(8080 + int(adapter))
     proc = subprocess.Popen(f'dvbv5-zap --adapter={adapter} --input-format=ZAP -c channels.conf -o - "{id}" | node broadcast.js {port} | ffmpeg -i pipe: {encode} -c:a aac -ac 2 -r 30 {container_hls} {outname_hls}', shell=True, stderr=subprocess.PIPE, text=True)
 
