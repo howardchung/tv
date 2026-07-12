@@ -30,7 +30,7 @@ def launch(id):
     #-vf scale=-1:720
     encode1 = '-c:v copy'
     encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=30:scenecut=0" -crf 26 -g 30'
-    encode3 = '-c:v libx265 -preset veryfast -x265-params "keyint=30"'
+    encode3 = '-c:v libx265 -preset superfast -x265-params "keyint=30"'
     encode4 = '-c:v libsvtav1 -g 30 -preset 13' # -preset 9 for decent quality but requires a lot of CPU
     encode5 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 30 -qp 26'
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 30 -qp 26'
