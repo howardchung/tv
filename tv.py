@@ -30,7 +30,7 @@ def launch(id):
     #-vf scale=-1:720
     encode1 = '-c:v copy'
     encode2 = '-c:v libx264 -preset veryfast -x264-params "keyint=30:scenecut=0" -crf 26 -g 30'
-    encode3 = '-c:v libx265 -preset superfast -x265-params "keyint=30"'
+    encode3 = '-c:v libx265 -preset veryfast -x265-params "keyint=30"'
     encode4 = '-c:v libsvtav1 -g 30 -preset 13' # -preset 9 for decent quality but requires a lot of CPU
     encode5 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v h264_vaapi -sei -a53_cc -g 30 -qp 26'
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 30 -qp 26'
@@ -47,7 +47,7 @@ def launch(id):
 
     encode = encode6
     if adapter == "1":
-        encode = encode3
+        encode = encode2
     port = str(8080 + int(adapter))
     proc = subprocess.Popen(f'dvbv5-zap --adapter={adapter} --input-format=ZAP -c channels.conf -o - "{id}" | node broadcast.js {port} | ffmpeg -i pipe: {encode} -c:a aac -ac 2 -r 30 {container_hls} {outname_hls}', shell=True, stderr=subprocess.PIPE, text=True)
 
