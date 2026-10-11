@@ -68,7 +68,6 @@ while True:
         subprocess.run(f'touch {basepath}/*.mp4', shell=True)
         subprocess.run(f'find {basepath}/ -name "*" -mmin +1440 -delete', shell=True)
 
-        print (proc.poll())
         if proc and proc.poll() is not None:
             # Process unexpectedly has an exit code, restart
             kill()
