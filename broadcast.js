@@ -14,8 +14,7 @@ process.stdin.on('close', () => {
 });
 
 const server = http.createServer((req, res) => {
-    // nginx sets headers
-    // res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.method === "HEAD") {
       return res.end();
     }
