@@ -9,12 +9,6 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js/dist/hls.min.js"></script>
     <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
     <link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet" />
-    <script src="
-    https://cdn.jsdelivr.net/npm/shaka-player/dist/shaka-player.compiled.min.js
-    "></script>
-  <link href="
-  https://cdn.jsdelivr.net/npm/shaka-player/dist/controls.min.css
-  " rel="stylesheet">
   <style>
     .wrapper {
       display: grid;
@@ -68,18 +62,6 @@
       <h3>video.js DASH</h3>
       <video class="video-js vjs-default-skin" id="video6" controls muted></video>
     </div>
-    <div>
-      <h3>shaka mpegts</h3>
-      <video id="video7" controls muted></video>
-    </div>
-    <div>
-      <h3>shaka HLS</h3>
-      <video id="video8" controls muted></video>
-    </div>
-    <div>
-      <h3>shaka DASH</h3>
-      <video id="video9" controls muted></video>
-    </div>
   </div>
     <script type="module">
     const mpegUrl = "https://nginx.howardchung.net/mpegts";
@@ -114,33 +96,12 @@
     const vjs1 = videojs('video5');
     vjs1.src(hlsUrl);
     vjs1.play();
+
     const video6 = document.getElementById('video6');
     const vjs2 = videojs('video6');
     vjs2.src(dashUrl);
     vjs2.play();
 
-    const video7 = document.getElementById('video7');
-    const shaka1 = new shaka.Player();
-    await shaka1.attach(video7);
-    try {
-      await shaka1.load(mpegUrl);
-    } catch (e) {
-      console.log(e);
-    }
-    tryPlay(video7);
-
-    const video8 = document.getElementById('video8');
-    const shaka2 = new shaka.Player();
-    await shaka2.attach(video8);
-    await shaka2.load(hlsUrl);
-    tryPlay(video8);
-    
-    const video9 = document.getElementById('video9');
-    const shaka3 = new shaka.Player();
-    await shaka3.attach(video9);
-    await shaka3.load(dashUrl);
-    tryPlay(video9);
-    
    async function tryPlay(vidEl) {
       try {
         await vidEl.play();
