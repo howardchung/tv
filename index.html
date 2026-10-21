@@ -1,325 +1,369 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
-  <title>TV Stream Lab</title>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #0a0d14;
-      --panel: #111722;
-      --panel-2: #151e2b;
-      --border: #273244;
-      --text: #edf3fc;
-      --muted: #98a7bb;
-      --accent: #66e3c4;
-      --accent-2: #78a8ff;
-      --danger: #ff8585;
-      --radius: 16px;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        radial-gradient(ellipse at 12% 0%, rgba(57, 108, 161, .18), transparent 42rem),
-        var(--bg);
-      color: var(--text);
-      font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    .page { width: min(1600px, 100%); margin: 0 auto; padding: 32px clamp(16px, 3vw, 42px) 48px; }
-    header { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
-    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
-    .brand-mark {
-      display: grid; place-items: center; flex: 0 0 46px; height: 46px; border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent), #70a4ff); color: #07131b; font-size: 22px; font-weight: 900;
-      box-shadow: 0 8px 30px rgba(102, 227, 196, .12);
-    }
-    h1 { margin: 0; font-size: clamp(23px, 3vw, 32px); letter-spacing: -.04em; line-height: 1.15; }
-    .subtitle { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
-    .live-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); white-space: nowrap; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px rgba(102,227,196,.7); }
-    .intro { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 18px; }
-    .intro h2 { margin: 0; font-size: 17px; letter-spacing: -.015em; }
-    .intro p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-    .card { min-width: 0; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); background: linear-gradient(180deg, rgba(21,30,43,.96), rgba(15,21,31,.98)); box-shadow: 0 14px 40px rgba(0,0,0,.16); transition: border-color .18s, transform .18s; }
-    .card:hover { border-color: #40516b; transform: translateY(-2px); }
-    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; }
-    .card-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
-    .index { display: grid; place-items: center; flex: 0 0 30px; height: 30px; border-radius: 9px; background: #202d40; color: var(--accent); font-size: 12px; font-weight: 800; }
-    h3 { margin: 0; overflow: hidden; font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-    .protocol { margin-top: 2px; color: var(--muted); font-size: 11px; }
-    .status { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; white-space: nowrap; }
-    .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #65748a; }
-    .status.ready::before { background: var(--accent); }
-    .status.error { color: var(--danger); }
-    .status.error::before { background: var(--danger); }
-    .screen { position: relative; aspect-ratio: 16 / 9; background: #030508; border-block: 1px solid rgba(255,255,255,.045); }
-    video { display: block; width: 100%; height: 100%; object-fit: contain; background: #030508; }
-    .video-js.vjs-default-skin { width: 100%; height: 100%; }
-    .video-js .vjs-control-bar { background: rgba(8, 12, 19, .88); }
-    .video-js .vjs-big-play-button { border-color: rgba(102,227,196,.8); background: rgba(12,22,30,.8); }
-    .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 16px; color: var(--muted); font-size: 12px; }
-    .card-foot span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .card-foot button { flex: 0 0 auto; padding: 6px 9px; border: 1px solid var(--border); border-radius: 8px; background: #192333; color: var(--text); font: inherit; cursor: pointer; }
-    .card-foot button:hover { border-color: var(--accent); }
-    .notice { margin-top: 20px; padding: 13px 16px; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); background: rgba(17,23,34,.7); font-size: 12px; }
-    .notice strong { color: var(--text); }
-    @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 640px) {
-      .page { padding: 22px 12px 32px; }
-      header { align-items: flex-start; }
-      .live-pill { padding: 7px 9px; font-size: 10px; }
-      .grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
-      .intro { align-items: flex-start; flex-direction: column; }
-    }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>TV Stream Lab</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0a0d14;
+  --panel: #111722;
+  --panel-2: #151e2b;
+  --border: #273244;
+  --text: #edf3fc;
+  --muted: #98a7bb;
+  --accent: #66e3c4;
+  --accent-2: #78a8ff;
+  --danger: #ff8585;
+  --radius: 16px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(57, 108, 161, .18), transparent 42rem),
+    var(--bg);
+  color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.page { width: min(1600px, 100%); margin: 0 auto; padding: 32px clamp(16px, 3vw, 42px) 48px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.brand-mark {
+  display: grid; place-items: center; flex: 0 0 46px; height: 46px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), #70a4ff); color: #07131b; font-size: 22px; font-weight: 900;
+  box-shadow: 0 8px 30px rgba(102, 227, 196, .12);
+}
+h1 { margin: 0; font-size: clamp(23px, 3vw, 32px); letter-spacing: -.04em; line-height: 1.15; }
+.subtitle { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+.live-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); white-space: nowrap; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px rgba(102,227,196,.7); }
+.intro { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 18px; }
+.intro h2 { margin: 0; font-size: 17px; letter-spacing: -.015em; }
+.intro p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.channel-label { grid-column: 1 / -1; margin: 10px 0 -4px; padding-bottom: 8px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; letter-spacing: -.01em; }
+.channel-label:first-child { margin-top: 0; }
+.channel-label span { margin-left: 8px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.card { min-width: 0; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); background: linear-gradient(180deg, rgba(21,30,43,.96), rgba(15,21,31,.98)); box-shadow: 0 14px 40px rgba(0,0,0,.16); transition: border-color .18s, transform .18s; }
+.card:hover { border-color: #40516b; transform: translateY(-2px); }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; }
+.card-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.index { display: grid; place-items: center; flex: 0 0 30px; height: 30px; border-radius: 9px; background: #202d40; color: var(--accent); font-size: 12px; font-weight: 800; }
+h3 { margin: 0; overflow: hidden; font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.protocol { margin-top: 2px; color: var(--muted); font-size: 11px; }
+.status { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #65748a; }
+.status.ready::before { background: var(--accent); }
+.status.error { color: var(--danger); }
+.status.error::before { background: var(--danger); }
+.screen { position: relative; aspect-ratio: 16 / 9; background: #030508; border-block: 1px solid rgba(255,255,255,.045); }
+video { display: block; width: 100%; height: 100%; object-fit: contain; background: #030508; }
+.video-js.vjs-default-skin { width: 100%; height: 100%; }
+.video-js .vjs-control-bar { background: rgba(8, 12, 19, .88); }
+.video-js .vjs-big-play-button { border-color: rgba(102,227,196,.8); background: rgba(12,22,30,.8); }
+.card-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 16px; color: var(--muted); font-size: 12px; }
+.card-foot span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card-foot button { flex: 0 0 auto; padding: 6px 9px; border: 1px solid var(--border); border-radius: 8px; background: #192333; color: var(--text); font: inherit; cursor: pointer; }
+.card-foot button:hover { border-color: var(--accent); }
+.notice { margin-top: 20px; padding: 13px 16px; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); background: rgba(17,23,34,.7); font-size: 12px; }
+.notice strong { color: var(--text); }
+@media (max-width: 1280px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .page { padding: 22px 12px 32px; }
+  header { align-items: flex-start; }
+  .live-pill { padding: 7px 9px; font-size: 10px; }
+  .grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .intro { align-items: flex-start; flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+</style>
 </head>
 <body>
-  <main class="page">
-    <header>
-      <div class="brand">
-        <div class="brand-mark" aria-hidden="true">▶</div>
-        <div>
-          <h1>TV Stream Lab</h1>
-          <p class="subtitle">Live playback comparison dashboard</p>
-        </div>
+<main class="page">
+  <header>
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">▶</div>
+      <div>
+        <h1>TV Stream Lab</h1>
+        <p class="subtitle">Live playback comparison dashboard</p>
       </div>
-      <div class="live-pill"><span class="live-dot"></span> Stream monitor</div>
-    </header>
+    </div>
+    <div class="live-pill"><span class="live-dot"></span> Stream monitor</div>
+  </header>
 
-    <section aria-labelledby="players-heading">
-      <div class="intro">
-        <div>
-          <h2 id="players-heading">Player comparison</h2>
-          <p>Compare the same live channel across streaming engines.</p>
-        </div>
+  <section aria-labelledby="players-heading">
+    <div class="intro">
+      <div>
+        <h2 id="players-heading">Player comparison</h2>
+        <p>Compare the same live channel across streaming engines.</p>
       </div>
+    </div>
 
-      <div class="grid">
-        <article class="card" data-player="mpegts">
-          <div class="card-head"><div class="card-title"><span class="index">01</span><div><h3>mpegts.js</h3><div class="protocol">MPEG-TS · Live</div></div></div><span class="status" id="status1">Starting</span></div>
-          <div class="screen"><video id="video1" controls playsinline muted preload="none" aria-label="mpegts.js live stream"></video></div>
-          <div class="card-foot"><span id="detail1">Connecting to MPEG-TS source</span><button type="button" data-retry="1">Retry</button></div>
-        </article>
+    <div class="grid">
+      <div class="channel-label">Channel 1<span>KOMO</span></div>
 
-        <article class="card" data-player="hls">
-          <div class="card-head"><div class="card-title"><span class="index">02</span><div><h3>hls.js</h3><div class="protocol">HLS · M3U8</div></div></div><span class="status" id="status2">Starting</span></div>
-          <div class="screen"><video id="video2" controls playsinline muted preload="none" aria-label="hls.js live stream"></video></div>
-          <div class="card-foot"><span id="detail2">Loading HLS manifest</span><button type="button" data-retry="2">Retry</button></div>
-        </article>
+      <article class="card" data-player="mpegts">
+        <div class="card-head"><div class="card-title"><span class="index">01</span><div><h3>mpegts.js</h3><div class="protocol">MPEG-TS · Live</div></div></div><span class="status" id="status1">Starting</span></div>
+        <div class="screen"><video id="video1" controls playsinline muted preload="none" aria-label="mpegts.js live stream, channel 1"></video></div>
+        <div class="card-foot"><span id="detail1">Connecting to MPEG-TS source</span><button type="button" data-retry="1">Retry</button></div>
+      </article>
 
-        <article class="card" data-player="dash">
-          <div class="card-head"><div class="card-title"><span class="index">03</span><div><h3>dash.js</h3><div class="protocol">MPEG-DASH · MPD</div></div></div><span class="status" id="status3">Starting</span></div>
-          <div class="screen"><video id="video3" controls playsinline muted preload="none" aria-label="dash.js live stream"></video></div>
-          <div class="card-foot"><span id="detail3">Loading DASH manifest</span><button type="button" data-retry="3">Retry</button></div>
-        </article>
+      <article class="card" data-player="hls">
+        <div class="card-head"><div class="card-title"><span class="index">02</span><div><h3>hls.js</h3><div class="protocol">HLS · M3U8</div></div></div><span class="status" id="status2">Starting</span></div>
+        <div class="screen"><video id="video2" controls playsinline muted preload="none" aria-label="hls.js live stream, channel 1"></video></div>
+        <div class="card-foot"><span id="detail2">Loading HLS manifest</span><button type="button" data-retry="2">Retry</button></div>
+      </article>
 
-        <article class="card" data-player="native">
-          <div class="card-head"><div class="card-title"><span class="index">04</span><div><h3>Native HLS</h3><div class="protocol">Browser playback</div></div></div><span class="status" id="status4">Checking</span></div>
-          <div class="screen"><video id="video4" controls playsinline muted preload="none" aria-label="Native browser HLS playback"></video></div>
-          <div class="card-foot"><span id="detail4">Checking native HLS support</span><button type="button" data-retry="4">Retry</button></div>
-        </article>
+      <article class="card" data-player="dash">
+        <div class="card-head"><div class="card-title"><span class="index">03</span><div><h3>dash.js</h3><div class="protocol">MPEG-DASH · MPD</div></div></div><span class="status" id="status3">Starting</span></div>
+        <div class="screen"><video id="video3" controls playsinline muted preload="none" aria-label="dash.js live stream, channel 1"></video></div>
+        <div class="card-foot"><span id="detail3">Loading DASH manifest</span><button type="button" data-retry="3">Retry</button></div>
+      </article>
 
-      </div>
-    </section>
-    <div class="notice"><strong>Playback note:</strong> Browsers may block autoplay. Players start muted; use each player's controls to unmute. Stream availability, CORS, codec support, and server configuration can affect playback.</div>
-  </main>
+      <article class="card" data-player="native">
+        <div class="card-head"><div class="card-title"><span class="index">04</span><div><h3>Native HLS</h3><div class="protocol">Browser playback</div></div></div><span class="status" id="status4">Checking</span></div>
+        <div class="screen"><video id="video4" controls playsinline muted preload="none" aria-label="Native browser HLS playback, channel 1"></video></div>
+        <div class="card-foot"><span id="detail4">Checking native HLS support</span><button type="button" data-retry="4">Retry</button></div>
+      </article>
 
-  <script src="https://cdn.jsdelivr.net/npm/mpegts.js/dist/mpegts.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js/dist/hls.min.js"></script>
-  <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
-  <script>
-    (() => {
-      "use strict";
+      <div class="channel-label">Channel 2<span>KING</span></div>
 
-      const URLS = {
-        mpegts: "https://mpegts2.howardchung.net",
-        hls: "https://nginx.howardchung.net/king-hd.m3u8",
-        dash: "https://nginx.howardchung.net/king-hd.mpd"
-      };
+      <article class="card" data-player="mpegts">
+        <div class="card-head"><div class="card-title"><span class="index">05</span><div><h3>mpegts.js</h3><div class="protocol">MPEG-TS · Live</div></div></div><span class="status" id="status5">Starting</span></div>
+        <div class="screen"><video id="video5" controls playsinline muted preload="none" aria-label="mpegts.js live stream, channel 2"></video></div>
+        <div class="card-foot"><span id="detail5">Connecting to MPEG-TS source</span><button type="button" data-retry="5">Retry</button></div>
+      </article>
 
-      const resources = {};
-      const el = (id) => document.getElementById(id);
+      <article class="card" data-player="hls">
+        <div class="card-head"><div class="card-title"><span class="index">06</span><div><h3>hls.js</h3><div class="protocol">HLS · M3U8</div></div></div><span class="status" id="status6">Starting</span></div>
+        <div class="screen"><video id="video6" controls playsinline muted preload="none" aria-label="hls.js live stream, channel 2"></video></div>
+        <div class="card-foot"><span id="detail6">Loading HLS manifest</span><button type="button" data-retry="6">Retry</button></div>
+      </article>
 
-      function setStatus(id, state, detail) {
-        const status = el("status" + id);
-        const detailEl = el("detail" + id);
-        if (status) {
-          status.textContent = state;
-          status.classList.toggle("ready", state === "Ready" || state === "Playing");
-          status.classList.toggle("error", state === "Error" || state === "Unsupported");
-        }
-        if (detailEl && detail) detailEl.textContent = detail;
+      <article class="card" data-player="dash">
+        <div class="card-head"><div class="card-title"><span class="index">07</span><div><h3>dash.js</h3><div class="protocol">MPEG-DASH · MPD</div></div></div><span class="status" id="status7">Starting</span></div>
+        <div class="screen"><video id="video7" controls playsinline muted preload="none" aria-label="dash.js live stream, channel 2"></video></div>
+        <div class="card-foot"><span id="detail7">Loading DASH manifest</span><button type="button" data-retry="7">Retry</button></div>
+      </article>
+
+      <article class="card" data-player="native">
+        <div class="card-head"><div class="card-title"><span class="index">08</span><div><h3>Native HLS</h3><div class="protocol">Browser playback</div></div></div><span class="status" id="status8">Checking</span></div>
+        <div class="screen"><video id="video8" controls playsinline muted preload="none" aria-label="Native browser HLS playback, channel 2"></video></div>
+        <div class="card-foot"><span id="detail8">Checking native HLS support</span><button type="button" data-retry="8">Retry</button></div>
+      </article>
+    </div>
+  </section>
+
+  <div class="notice"><strong>Playback note:</strong> Browsers may block autoplay. Players start muted; use each player's controls to unmute. Stream availability, CORS, codec support, and server configuration can affect playback.</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/mpegts.js/dist/mpegts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js/dist/hls.min.js"></script>
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const CHANNELS = {
+    1: {
+      mpegts: "https://mpegts1.howardchung.net",
+      hls: "https://nginx.howardchung.net/komo.m3u8",
+      dash: "https://nginx.howardchung.net/komo.mpd",
+    },
+    2: {
+      mpegts: "https://mpegts2.howardchung.net",
+      hls: "https://nginx.howardchung.net/king-hd.m3u8",
+      dash: "https://nginx.howardchung.net/king-hd.mpd",
+    }
+  };
+
+  const resources = {};
+  const el = (id) => document.getElementById(id);
+
+  function setStatus(id, state, detail) {
+    const status = el("status" + id);
+    const detailEl = el("detail" + id);
+    if (status) {
+      status.textContent = state;
+      status.classList.toggle("ready", state === "Ready" || state === "Playing");
+      status.classList.toggle("error", state === "Error" || state === "Unsupported");
+    }
+    if (detailEl && detail) detailEl.textContent = detail;
+  }
+
+  async function safePlay(video, id) {
+    try {
+      await video.play();
+      setStatus(id, "Playing", "Playback started");
+    } catch (error) {
+      // Autoplay restrictions are expected; leave controls available.
+      if (error && error.name === "NotAllowedError") {
+        setStatus(id, "Ready", "Press play to start");
+      } else if (error && error.name !== "AbortError") {
+        setStatus(id, "Ready", "Waiting for playback");
       }
+    }
+  }
 
-      async function safePlay(video, id) {
-        try {
-          await video.play();
-          setStatus(id, "Playing", "Playback started");
-        } catch (error) {
-          // Autoplay restrictions are expected; leave controls available.
-          if (error && error.name === "NotAllowedError") {
-            setStatus(id, "Ready", "Press play to start");
-          } else if (error && error.name !== "AbortError") {
-            setStatus(id, "Ready", "Waiting for playback");
-          }
+  function clearPlayer(id) {
+    const old = resources[id];
+    if (old) {
+      try {
+        if (old.kind === "mpegts") {
+          old.player.pause();
+          old.player.unload();
+          old.player.detachMediaElement();
+          old.player.destroy();
+        } else if (old.kind === "hls") {
+          old.player.destroy();
+        } else if (old.kind === "dash") {
+          old.player.reset();
+        } else if (old.kind === "videojs") {
+          old.player.dispose();
         }
+      } catch (error) {
+        console.warn("Player cleanup failed:", error);
       }
+      delete resources[id];
+    }
+  }
 
-      function clearPlayer(id) {
-        const old = resources[id];
-        if (old) {
-          try {
-            if (old.kind === "mpegts") {
-              old.player.pause();
-              old.player.unload();
-              old.player.detachMediaElement();
-              old.player.destroy();
-            } else if (old.kind === "hls") {
-              old.player.destroy();
-            } else if (old.kind === "dash") {
-              old.player.reset();
-            } else if (old.kind === "videojs") {
-              old.player.dispose();
-            }
-          } catch (error) {
-            console.warn("Player cleanup failed:", error);
-          }
-          delete resources[id];
-        }
-      }
+  function reportVideoEvents(video, id) {
+    video.addEventListener("playing", () => setStatus(id, "Playing", "Live playback"));
+    video.addEventListener("waiting", () => setStatus(id, "Buffering", "Waiting for stream data"));
+    video.addEventListener("stalled", () => setStatus(id, "Buffering", "Stream data stalled"));
+    video.addEventListener("error", () => {
+      const error = video.error;
+      setStatus(id, "Error", error ? "Media error " + error.code : "Unable to play stream");
+    });
+  }
 
-      function reportVideoEvents(video, id) {
-        video.addEventListener("playing", () => setStatus(id, "Playing", "Live playback"));
-        video.addEventListener("waiting", () => setStatus(id, "Buffering", "Waiting for stream data"));
-        video.addEventListener("stalled", () => setStatus(id, "Buffering", "Stream data stalled"));
-        video.addEventListener("error", () => {
-          const error = video.error;
-          setStatus(id, "Error", error ? "Media error " + error.code : "Unable to play stream");
-        });
-      }
-
-      function initMpegts() {
-        const id = 1, video = el("video1");
-        clearPlayer(id);
-        if (!window.mpegts || !mpegts.isSupported()) {
-          setStatus(id, "Unsupported", "MPEG-TS playback is not supported here");
-          return;
-        }
-        try {
-          const player = mpegts.createPlayer({
-            type: "mpegts", isLive: true, url: URLS.mpegts,
-            enableStashBuffer: true,
-            stashInitialSize: 128
-          });
-          resources[id] = { kind: "mpegts", player };
-          player.on(mpegts.Events.ERROR, (type, detail, info) => {
-            console.error("mpegts.js error:", type, detail, info);
-            setStatus(id, "Error", "MPEG-TS player error — see console");
-          });
-          player.attachMediaElement(video);
-          player.load();
-          setStatus(id, "Ready", "Connected to MPEG-TS source");
-          safePlay(video, id);
-        } catch (error) {
-          console.error(error);
-          setStatus(id, "Error", "Could not initialize mpegts.js");
-        }
-      }
-
-      function initHls() {
-        const id = 2, video = el("video2");
-        clearPlayer(id);
-        if (!window.Hls) {
-          setStatus(id, "Error", "hls.js library failed to load");
-          return;
-        }
-        if (Hls.isSupported()) {
-          const player = new Hls({ enableWorker: true, lowLatencyMode: true });
-          resources[id] = { kind: "hls", player };
-          player.on(Hls.Events.ERROR, (_event, data) => {
-            if (!data.fatal) return;
-            console.error("hls.js fatal error:", data);
-            setStatus(id, "Error", "HLS error: " + data.type);
-            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) player.startLoad();
-            else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) player.recoverMediaError();
-          });
-          player.on(Hls.Events.MANIFEST_PARSED, () => {
-            setStatus(id, "Ready", "HLS manifest loaded");
-            safePlay(video, id);
-          });
-          player.loadSource(URLS.hls);
-          player.attachMedia(video);
-        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-          video.src = URLS.hls;
-          setStatus(id, "Ready", "Using native HLS playback");
-          safePlay(video, id);
-        } else {
-          setStatus(id, "Unsupported", "HLS is not supported by this browser");
-        }
-      }
-
-      function initDash() {
-        const id = 3, video = el("video3");
-        clearPlayer(id);
-        if (!window.dashjs || !dashjs.MediaPlayer) {
-          setStatus(id, "Error", "dash.js library failed to load");
-          return;
-        }
-        try {
-          const player = dashjs.MediaPlayer().create();
-          resources[id] = { kind: "dash", player };
-          player.initialize(video, URLS.dash, false);
-          player.on(dashjs.MediaPlayer.events.ERROR, (event) => {
-            console.error("dash.js error:", event);
-            setStatus(id, "Error", "DASH playback error — see console");
-          });
-          player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
-            setStatus(id, "Ready", "DASH stream initialized");
-            safePlay(video, id);
-          });
-        } catch (error) {
-          console.error(error);
-          setStatus(id, "Error", "Could not initialize dash.js");
-        }
-      }
-
-      function initNative() {
-        const id = 4, video = el("video4");
-        clearPlayer(id);
-        if (video.canPlayType("application/vnd.apple.mpegurl")) {
-          video.src = URLS.hls;
-          setStatus(id, "Ready", "Native HLS supported");
-          safePlay(video, id);
-        } else {
-          video.removeAttribute("src");
-          setStatus(id, "Unsupported", "This browser has no native HLS support");
-        }
-      }
-
-      const initializers = {
-        1: initMpegts,
-        2: initHls,
-        3: initDash,
-        4: initNative,
-      };
-
-      document.querySelectorAll("[data-retry]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const init = initializers[button.dataset.retry];
-          if (init) init();
-        });
+  function initMpegts(id, channel) {
+    const video = el("video" + id);
+    clearPlayer(id);
+    if (!window.mpegts || !mpegts.isSupported()) {
+      setStatus(id, "Unsupported", "MPEG-TS playback is not supported here");
+      return;
+    }
+    try {
+      const player = mpegts.createPlayer({
+        type: "mpegts", isLive: true, url: CHANNELS[channel].mpegts,
+        enableStashBuffer: true,
+        stashInitialSize: 128
       });
+      resources[id] = { kind: "mpegts", player };
+      player.on(mpegts.Events.ERROR, (type, detail, info) => {
+        console.error("mpegts.js error:", type, detail, info);
+        setStatus(id, "Error", "MPEG-TS player error — see console");
+      });
+      player.attachMediaElement(video);
+      player.load();
+      setStatus(id, "Ready", "Connected to MPEG-TS source");
+      safePlay(video, id);
+    } catch (error) {
+      console.error(error);
+      setStatus(id, "Error", "Could not initialize mpegts.js");
+    }
+  }
 
-      Object.keys(initializers).forEach((id) => reportVideoEvents(el("video" + id), id));
-      Object.values(initializers).forEach((init) => init());
-    })();
-  </script>
+  function initHls(id, channel) {
+    const video = el("video" + id);
+    const url = CHANNELS[channel].hls;
+    clearPlayer(id);
+    if (!window.Hls) {
+      setStatus(id, "Error", "hls.js library failed to load");
+      return;
+    }
+    if (Hls.isSupported()) {
+      const player = new Hls({ enableWorker: true, lowLatencyMode: true });
+      resources[id] = { kind: "hls", player };
+      player.on(Hls.Events.ERROR, (_event, data) => {
+        if (!data.fatal) return;
+        console.error("hls.js fatal error:", data);
+        setStatus(id, "Error", "HLS error: " + data.type);
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) player.startLoad();
+        else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) player.recoverMediaError();
+      });
+      player.on(Hls.Events.MANIFEST_PARSED, () => {
+        setStatus(id, "Ready", "HLS manifest loaded");
+        safePlay(video, id);
+      });
+      player.loadSource(url);
+      player.attachMedia(video);
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = url;
+      setStatus(id, "Ready", "Using native HLS playback");
+      safePlay(video, id);
+    } else {
+      setStatus(id, "Unsupported", "HLS is not supported by this browser");
+    }
+  }
+
+  function initDash(id, channel) {
+    const video = el("video" + id);
+    clearPlayer(id);
+    if (!window.dashjs || !dashjs.MediaPlayer) {
+      setStatus(id, "Error", "dash.js library failed to load");
+      return;
+    }
+    try {
+      const player = dashjs.MediaPlayer().create();
+      resources[id] = { kind: "dash", player };
+      player.initialize(video, CHANNELS[channel].dash, false);
+      player.on(dashjs.MediaPlayer.events.ERROR, (event) => {
+        console.error("dash.js error:", event);
+        setStatus(id, "Error", "DASH playback error — see console");
+      });
+      player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+        setStatus(id, "Ready", "DASH stream initialized");
+        safePlay(video, id);
+      });
+    } catch (error) {
+      console.error(error);
+      setStatus(id, "Error", "Could not initialize dash.js");
+    }
+  }
+
+  function initNative(id, channel) {
+    const video = el("video" + id);
+    clearPlayer(id);
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = CHANNELS[channel].hls;
+      setStatus(id, "Ready", "Native HLS supported");
+      safePlay(video, id);
+    } else {
+      video.removeAttribute("src");
+      setStatus(id, "Unsupported", "This browser has no native HLS support");
+    }
+  }
+
+  // Player id -> initializer + channel
+  const initializers = {
+    1: () => initMpegts(1, 1),
+    2: () => initHls(2, 1),
+    3: () => initDash(3, 1),
+    4: () => initNative(4, 1),
+    5: () => initMpegts(5, 2),
+    6: () => initHls(6, 2),
+    7: () => initDash(7, 2),
+    8: () => initNative(8, 2),
+  };
+
+  document.querySelectorAll("[data-retry]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const init = initializers[button.dataset.retry];
+      if (init) init();
+    });
+  });
+
+  Object.keys(initializers).forEach((id) => reportVideoEvents(el("video" + id), id));
+  Object.values(initializers).forEach((init) => init());
+})();
+</script>
 </body>
 </html>
