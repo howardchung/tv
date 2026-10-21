@@ -66,6 +66,11 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
 .video-js.vjs-default-skin { width: 100%; height: 100%; }
 .video-js .vjs-control-bar { background: rgba(8, 12, 19, .88); }
 .video-js .vjs-big-play-button { border-color: rgba(102,227,196,.8); background: rgba(12,22,30,.8); }
+.codecs { display: grid; gap: 4px; padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,.045); font-size: 12px; }
+.codec-row { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 8px; align-items: baseline; }
+.codec-label { color: var(--muted); }
+.codec-value { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.codec-value.pending { color: var(--muted); }
 .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 16px; color: var(--muted); font-size: 12px; }
 .card-foot span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .card-foot button { flex: 0 0 auto; padding: 6px 9px; border: 1px solid var(--border); border-radius: 8px; background: #192333; color: var(--text); font: inherit; cursor: pointer; }
@@ -105,55 +110,63 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
     </div>
 
     <div class="grid">
-      <div class="channel-label">Channel 1<span>KOMO</span></div>
+      <div class="channel-label">Channel 1<span>KING</span></div>
 
       <article class="card" data-player="mpegts">
         <div class="card-head"><div class="card-title"><span class="index">01</span><div><h3>mpegts.js</h3><div class="protocol">MPEG-TS · Live</div></div></div><span class="status" id="status1">Starting</span></div>
         <div class="screen"><video id="video1" controls playsinline muted preload="none" aria-label="mpegts.js live stream, channel 1"></video></div>
+        <div class="codecs" id="codecs1"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail1">Connecting to MPEG-TS source</span><button type="button" data-retry="1">Retry</button></div>
       </article>
 
       <article class="card" data-player="hls">
         <div class="card-head"><div class="card-title"><span class="index">02</span><div><h3>hls.js</h3><div class="protocol">HLS · M3U8</div></div></div><span class="status" id="status2">Starting</span></div>
         <div class="screen"><video id="video2" controls playsinline muted preload="none" aria-label="hls.js live stream, channel 1"></video></div>
+        <div class="codecs" id="codecs2"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail2">Loading HLS manifest</span><button type="button" data-retry="2">Retry</button></div>
       </article>
 
       <article class="card" data-player="dash">
         <div class="card-head"><div class="card-title"><span class="index">03</span><div><h3>dash.js</h3><div class="protocol">MPEG-DASH · MPD</div></div></div><span class="status" id="status3">Starting</span></div>
         <div class="screen"><video id="video3" controls playsinline muted preload="none" aria-label="dash.js live stream, channel 1"></video></div>
+        <div class="codecs" id="codecs3"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail3">Loading DASH manifest</span><button type="button" data-retry="3">Retry</button></div>
       </article>
 
       <article class="card" data-player="native">
         <div class="card-head"><div class="card-title"><span class="index">04</span><div><h3>Native HLS</h3><div class="protocol">Browser playback</div></div></div><span class="status" id="status4">Checking</span></div>
         <div class="screen"><video id="video4" controls playsinline muted preload="none" aria-label="Native browser HLS playback, channel 1"></video></div>
+        <div class="codecs" id="codecs4"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail4">Checking native HLS support</span><button type="button" data-retry="4">Retry</button></div>
       </article>
 
-      <div class="channel-label">Channel 2<span>KING</span></div>
+      <div class="channel-label">Channel 2<span>KOMO</span></div>
 
       <article class="card" data-player="mpegts">
         <div class="card-head"><div class="card-title"><span class="index">05</span><div><h3>mpegts.js</h3><div class="protocol">MPEG-TS · Live</div></div></div><span class="status" id="status5">Starting</span></div>
         <div class="screen"><video id="video5" controls playsinline muted preload="none" aria-label="mpegts.js live stream, channel 2"></video></div>
+        <div class="codecs" id="codecs5"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail5">Connecting to MPEG-TS source</span><button type="button" data-retry="5">Retry</button></div>
       </article>
 
       <article class="card" data-player="hls">
         <div class="card-head"><div class="card-title"><span class="index">06</span><div><h3>hls.js</h3><div class="protocol">HLS · M3U8</div></div></div><span class="status" id="status6">Starting</span></div>
         <div class="screen"><video id="video6" controls playsinline muted preload="none" aria-label="hls.js live stream, channel 2"></video></div>
+        <div class="codecs" id="codecs6"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail6">Loading HLS manifest</span><button type="button" data-retry="6">Retry</button></div>
       </article>
 
       <article class="card" data-player="dash">
         <div class="card-head"><div class="card-title"><span class="index">07</span><div><h3>dash.js</h3><div class="protocol">MPEG-DASH · MPD</div></div></div><span class="status" id="status7">Starting</span></div>
         <div class="screen"><video id="video7" controls playsinline muted preload="none" aria-label="dash.js live stream, channel 2"></video></div>
+        <div class="codecs" id="codecs7"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail7">Loading DASH manifest</span><button type="button" data-retry="7">Retry</button></div>
       </article>
 
       <article class="card" data-player="native">
         <div class="card-head"><div class="card-title"><span class="index">08</span><div><h3>Native HLS</h3><div class="protocol">Browser playback</div></div></div><span class="status" id="status8">Checking</span></div>
         <div class="screen"><video id="video8" controls playsinline muted preload="none" aria-label="Native browser HLS playback, channel 2"></video></div>
+        <div class="codecs" id="codecs8"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail8">Checking native HLS support</span><button type="button" data-retry="8">Retry</button></div>
       </article>
     </div>
@@ -171,19 +184,112 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
 
   const CHANNELS = {
     1: {
-      mpegts: "https://mpegts1.howardchung.net",
-      hls: "https://nginx.howardchung.net/komo.m3u8",
-      dash: "https://nginx.howardchung.net/komo.mpd",
-    },
-    2: {
       mpegts: "https://mpegts2.howardchung.net",
       hls: "https://nginx.howardchung.net/king-hd.m3u8",
-      dash: "https://nginx.howardchung.net/king-hd.mpd",
+      dash: "https://nginx.howardchung.net/king-hd.mpd"
+    },
+    2: {
+      mpegts: "https://mpegts1.howardchung.net",
+      hls: "https://nginx.howardchung.net/komo.m3u8",
+      dash: "https://nginx.howardchung.net/komo.mpd"
     }
   };
 
   const resources = {};
   const el = (id) => document.getElementById(id);
+
+  // ---- Codec display ----
+  const codecState = {};
+  const AUDIO_PREFIXES = ["mp4a", "ac-3", "ec-3", "ac-4", "opus", "mp3", "flac", "vorbis"];
+
+  function normalizeCodecString(str) {
+    // 'video/mp4; codecs="avc1.64001f"' -> 'avc1.64001f'
+    if (!str) return "";
+    const m = /codecs="?([^";]+)"?/i.exec(str);
+    return m ? m[1] : String(str);
+  }
+
+  function splitCodecs(str) {
+    const out = { video: [], audio: [] };
+    normalizeCodecString(str).split(",").map((c) => c.trim()).filter(Boolean).forEach((c) => {
+      const isAudio = AUDIO_PREFIXES.some((p) => c.toLowerCase().startsWith(p));
+      out[isAudio ? "audio" : "video"].push(c);
+    });
+    return out;
+  }
+
+  function describeCodec(codec) {
+    const c = codec.toLowerCase();
+    let name = "";
+    if (c.startsWith("avc1") || c.startsWith("avc3")) name = "H.264 / AVC";
+    else if (c.startsWith("hvc1") || c.startsWith("hev1")) name = "H.265 / HEVC";
+    else if (c.startsWith("av01")) name = "AV1";
+    else if (c.startsWith("vp09")) name = "VP9";
+    else if (c.startsWith("vp8")) name = "VP8";
+    else if (c === "mp4a.40.2") name = "AAC-LC";
+    else if (c === "mp4a.40.5") name = "HE-AAC";
+    else if (c === "mp4a.40.29") name = "HE-AAC v2";
+    else if (c.startsWith("mp4a.40")) name = "AAC";
+    else if (c === "mp4a.69" || c === "mp4a.6b" || c === "mp3") name = "MP3";
+    else if (c.startsWith("ac-3")) name = "AC-3 (Dolby Digital)";
+    else if (c.startsWith("ec-3")) name = "E-AC-3 (Dolby Digital Plus)";
+    else if (c.startsWith("opus")) name = "Opus";
+    else if (c.startsWith("flac")) name = "FLAC";
+    return name ? name + " (" + codec + ")" : codec;
+  }
+
+  function renderCodecs(id) {
+    const box = el("codecs" + id);
+    if (!box) return;
+    const state = codecState[id] || {};
+    ["video", "audio"].forEach((kind) => {
+      const node = box.querySelector('[data-kind="' + kind + '"]');
+      if (!node) return;
+      const list = state[kind] || [];
+      node.textContent = list.length ? list.map(describeCodec).join(", ") : (state.note || "Waiting for stream info");
+      node.classList.toggle("pending", !list.length);
+    });
+  }
+
+  function setCodecs(id, patch) {
+    const state = codecState[id] || (codecState[id] = {});
+    ["video", "audio"].forEach((kind) => {
+      if (patch[kind] === undefined || patch[kind] === null || patch[kind] === "") return;
+      const list = [].concat(patch[kind]).filter(Boolean);
+      if (list.length) state[kind] = Array.from(new Set(list));
+    });
+    if (patch.note !== undefined) state.note = patch.note;
+    renderCodecs(id);
+  }
+
+  function resetCodecs(id) {
+    codecState[id] = {};
+    renderCodecs(id);
+  }
+
+  // Browsers don't expose codecs for native HLS, so read CODECS from the playlist itself.
+  async function loadPlaylistCodecs(id, url) {
+    try {
+      const text = await (await fetch(url, { cache: "no-store" })).text();
+      const found = { video: [], audio: [] };
+      text.split(/\r?\n/).forEach((line) => {
+        if (!line.startsWith("#EXT-X-STREAM-INF")) return;
+        const m = /CODECS="([^"]+)"/.exec(line);
+        if (!m) return;
+        const parts = splitCodecs(m[1]);
+        found.video.push(...parts.video);
+        found.audio.push(...parts.audio);
+      });
+      if (found.video.length || found.audio.length) {
+        setCodecs(id, found);
+      } else {
+        setCodecs(id, { note: "Not declared in playlist" });
+      }
+    } catch (error) {
+      console.warn("Could not read playlist codecs:", error);
+      setCodecs(id, { note: "Playlist unavailable (fetch blocked)" });
+    }
+  }
 
   function setStatus(id, state, detail) {
     const status = el("status" + id);
@@ -211,6 +317,7 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
   }
 
   function clearPlayer(id) {
+    resetCodecs(id);
     const old = resources[id];
     if (old) {
       try {
@@ -261,6 +368,13 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
         console.error("mpegts.js error:", type, detail, info);
         setStatus(id, "Error", "MPEG-TS player error — see console");
       });
+      player.on(mpegts.Events.MEDIA_INFO, (info) => {
+        const fromMime = splitCodecs(info.mimeType);
+        setCodecs(id, {
+          video: info.videoCodec || fromMime.video,
+          audio: info.audioCodec || fromMime.audio
+        });
+      });
       player.attachMediaElement(video);
       player.load();
       setStatus(id, "Ready", "Connected to MPEG-TS source");
@@ -289,6 +403,16 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
         if (data.type === Hls.ErrorTypes.NETWORK_ERROR) player.startLoad();
         else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) player.recoverMediaError();
       });
+      player.on(Hls.Events.BUFFER_CODECS, (_event, data) => {
+        setCodecs(id, {
+          video: data.video && (data.video.codec || data.video.levelCodec),
+          audio: data.audio && (data.audio.codec || data.audio.levelCodec)
+        });
+      });
+      player.on(Hls.Events.LEVEL_SWITCHED, (_event, data) => {
+        const level = player.levels && player.levels[data.level];
+        if (level) setCodecs(id, { video: level.videoCodec, audio: level.audioCodec });
+      });
       player.on(Hls.Events.MANIFEST_PARSED, () => {
         setStatus(id, "Ready", "HLS manifest loaded");
         safePlay(video, id);
@@ -297,6 +421,7 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
       player.attachMedia(video);
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = url;
+      loadPlaylistCodecs(id, url);
       setStatus(id, "Ready", "Using native HLS playback");
       safePlay(video, id);
     } else {
@@ -319,6 +444,30 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
         console.error("dash.js error:", event);
         setStatus(id, "Error", "DASH playback error — see console");
       });
+      const readCodecs = () => {
+        const found = {};
+        ["video", "audio"].forEach((type) => {
+          let codec = "";
+          try {
+            // dash.js v5
+            const rep = player.getCurrentRepresentationForType && player.getCurrentRepresentationForType(type);
+            codec = rep && rep.codecs;
+            if (!codec) {
+              const track = (player.getCurrentTrack && player.getCurrentTrack(type)) ||
+                            (player.getCurrentTrackFor && player.getCurrentTrackFor(type));
+              codec = track && (track.codec || track.codecs);
+            }
+          } catch (error) {
+            console.warn("dash.js codec lookup failed:", error);
+          }
+          if (codec) found[type] = normalizeCodecString(codec);
+        });
+        setCodecs(id, found);
+      };
+      ["STREAM_INITIALIZED", "PLAYBACK_METADATA_LOADED", "QUALITY_CHANGE_RENDERED", "REPRESENTATION_SWITCH"].forEach((name) => {
+        const evt = dashjs.MediaPlayer.events[name];
+        if (evt) player.on(evt, readCodecs);
+      });
       player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
         setStatus(id, "Ready", "DASH stream initialized");
         safePlay(video, id);
@@ -334,10 +483,12 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
     clearPlayer(id);
     if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = CHANNELS[channel].hls;
+      loadPlaylistCodecs(id, CHANNELS[channel].hls);
       setStatus(id, "Ready", "Native HLS supported");
       safePlay(video, id);
     } else {
       video.removeAttribute("src");
+      setCodecs(id, { note: "Unavailable without native HLS" });
       setStatus(id, "Unsupported", "This browser has no native HLS support");
     }
   }
