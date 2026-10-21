@@ -6,8 +6,6 @@
   <meta name="color-scheme" content="dark">
   <title>TV Stream Lab</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="preconnect" href="https://unpkg.com">
-  <link rel="stylesheet" href="https://unpkg.com/video.js/dist/video-js.min.css">
   <style>
     :root {
       color-scheme: dark;
@@ -128,17 +126,6 @@
           <div class="card-foot"><span id="detail4">Checking native HLS support</span><button type="button" data-retry="4">Retry</button></div>
         </article>
 
-        <article class="card" data-player="videojs-hls">
-          <div class="card-head"><div class="card-title"><span class="index">05</span><div><h3>Video.js · HLS</h3><div class="protocol">Video.js player</div></div></div><span class="status" id="status5">Starting</span></div>
-          <div class="screen"><video class="video-js vjs-default-skin" id="video5" controls playsinline muted preload="none" aria-label="Video.js HLS playback"></video></div>
-          <div class="card-foot"><span id="detail5">Initializing Video.js</span><button type="button" data-retry="5">Retry</button></div>
-        </article>
-
-        <article class="card" data-player="videojs-dash">
-          <div class="card-head"><div class="card-title"><span class="index">06</span><div><h3>Video.js · DASH</h3><div class="protocol">Video.js player</div></div></div><span class="status" id="status6">Starting</span></div>
-          <div class="screen"><video class="video-js vjs-default-skin" id="video6" controls playsinline muted preload="none" aria-label="Video.js DASH playback"></video></div>
-          <div class="card-foot"><span id="detail6">Initializing Video.js</span><button type="button" data-retry="6">Retry</button></div>
-        </article>
       </div>
     </section>
     <div class="notice"><strong>Playback note:</strong> Browsers may block autoplay. Players start muted; use each player's controls to unmute. Stream availability, CORS, codec support, and server configuration can affect playback.</div>
@@ -147,7 +134,6 @@
   <script src="https://cdn.jsdelivr.net/npm/mpegts.js/dist/mpegts.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js/dist/hls.min.js"></script>
   <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
-  <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
   <script>
     (() => {
       "use strict";
@@ -317,40 +303,11 @@
         }
       }
 
-      function initVideojs(id, sourceType, sourceUrl) {
-        const video = el("video" + id);
-        clearPlayer(id);
-        if (!window.videojs) {
-          setStatus(id, "Error", "Video.js library failed to load");
-          return;
-        }
-        try {
-          const player = videojs(video, {
-            controls: true, autoplay: false, muted: true, liveui: true,
-            fluid: false, responsive: true, preload: "none",
-            sources: [{ src: sourceUrl, type: sourceType }]
-          });
-          resources[id] = { kind: "videojs", player };
-          player.on("playing", () => setStatus(id, "Playing", "Live playback"));
-          player.on("error", () => {
-            const error = player.error();
-            console.error("Video.js error:", error);
-            setStatus(id, "Error", error ? "Video.js error " + error.code : "Playback error");
-          });
-          player.ready(() => setStatus(id, "Ready", "Player initialized"));
-        } catch (error) {
-          console.error(error);
-          setStatus(id, "Error", "Could not initialize Video.js");
-        }
-      }
-
       const initializers = {
         1: initMpegts,
         2: initHls,
         3: initDash,
         4: initNative,
-        5: () => initVideojs(5, "application/x-mpegURL", URLS.hls),
-        6: () => initVideojs(6, "application/dash+xml", URLS.dash)
       };
 
       document.querySelectorAll("[data-retry]").forEach((button) => {
@@ -360,7 +317,7 @@
         });
       });
 
-      [1, 2, 3, 4, 5, 6].forEach((id) => reportVideoEvents(el("video" + id), id));
+      Object.keys(initializers).forEach((id) => reportVideoEvents(el("video" + id), id));
       Object.values(initializers).forEach((init) => init());
     })();
   </script>
