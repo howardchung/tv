@@ -106,6 +106,8 @@ def launch(id):
     if adapter == "1":
         encode = encode2
 
+    # -flags +global_header (below) puts SPS/PPS in the encoder extradata. Without it the tee muxer
+    # gives the DASH muxer no extradata, so the MPD says codecs="avc1" instead of e.g. "avc1.4d401f".
     # hvc1 so Safari/DASH players accept HEVC in fMP4; only valid when actually encoding HEVC
     tags = ['-tag:a', 'mp4a']
     if 'hevc' in encode or 'x265' in encode:
@@ -126,7 +128,7 @@ def launch(id):
     )
     zap.stdout.close()  # so zap gets SIGPIPE if node exits
     ffmpeg = subprocess.Popen(
-        ['ffmpeg', '-i', 'pipe:', *shlex.split(encode), '-c:a', 'aac', '-ac', '2', '-r', '30', *tags, *container_tee],
+        ['ffmpeg', '-i', 'pipe:', *shlex.split(encode), '-c:a', 'aac', '-ac', '2', '-r', '30', '-flags', '+global_header', *tags, *container_tee],
         stdin=node.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
     )
     node.stdout.close()  # so node gets SIGPIPE if ffmpeg exits
