@@ -86,14 +86,6 @@ def launch(id):
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 30 -qp 26'
     encode7 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v av1_vaapi -sei -a53_cc -g 30 -qp 26'
 
-    container_hls = [
-        '-f', 'hls',
-        '-hls_time', '6',
-        '-hls_list_size', '4800',
-        '-hls_flags', 'delete_segments+append_list',
-        '-hls_segment_type', 'fmp4',
-        '-hls_fmp4_init_filename', f'{id}_init.mp4',
-    ]
     container_dash = rf'-f dash -seg_duration 6 -window_size 100 -init_seg_name "{id}_init_\$RepresentationID\$.\$ext\$" -media_seg_name "{id}_chunk_\$RepresentationID\$-\$Number\$.\$ext\$"' # -tag:v av01 -tag:v hvc1 -tag:a mp4a
     container_flv = '-f flv'
     container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
@@ -101,11 +93,21 @@ def launch(id):
     outname_dash = basepath + id + '.mpd'
     outname3 = 'rtmp://5.78.115.83:5000'
 
+    # One encode, three outputs via the tee muxer. Per-output options go in [brackets]
+    # joined by ':', outputs are joined by '|'. No shell is involved, so the $ in the
+    # DASH templates needs no escaping. `id` is restricted by SAFE_ID, so it can't
+    # contain any of the tee-special characters (: , | [ ] \\).
+    tee_hls = f'[f=hls:hls_time=6:hls_list_size=4800:hls_flags=delete_segments+append_list:hls_segment_type=fmp4:hls_fmp4_init_filename={id}_init.mp4]{outname_hls}'
+    tee_dash = f'[f=dash:seg_duration=6:window_size=100:init_seg_name={id}_init_$RepresentationID$.$ext$:media_seg_name={id}_chunk_$RepresentationID$-$Number$.$ext$]{outname_dash}'
+    tee_ts = '[f=mpegts]pipe:1'  # served over HTTP by a second broadcast.js
+    container_tee = ['-map', '0:v:0', '-map', '0:a:0', '-f', 'tee', f'{tee_hls}|{tee_dash}|{tee_ts}']
+
     encode = encode6
     if adapter == "1":
         encode = encode2
 
     port = str(8080 + int(adapter))
+    ts_port = str(8180 + int(adapter))  # HTTP port for the mpegts output
 
     # No shell: every argument is passed as a separate argv entry, so nothing in
     # `id` can be interpreted as shell syntax.
@@ -119,12 +121,19 @@ def launch(id):
     )
     zap.stdout.close()  # so zap gets SIGPIPE if node exits
     ffmpeg = subprocess.Popen(
-        ['ffmpeg', '-i', 'pipe:', *shlex.split(encode), '-c:a', 'aac', '-ac', '2', '-r', '30', *container_hls, outname_hls],
-        stdin=node.stdout, stderr=subprocess.PIPE, text=True,
+        ['ffmpeg', '-i', 'pipe:', *shlex.split(encode), '-c:a', 'aac', '-ac', '2', '-r', '30', *container_tee],
+        stdin=node.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
     )
     node.stdout.close()  # so node gets SIGPIPE if ffmpeg exits
 
-    procs.extend([zap, node, ffmpeg])
+    # ffmpeg's stdout carries the mpegts stream, serve it over HTTP
+    ts_node = subprocess.Popen(
+        ['node', 'broadcast.js', ts_port],
+        stdin=ffmpeg.stdout, stdout=subprocess.DEVNULL,
+    )
+    ffmpeg.stdout.close()  # so ffmpeg gets SIGPIPE if the ts server exits
+
+    procs.extend([zap, node, ffmpeg, ts_node])
     ffmpeg_proc = ffmpeg
     threading.Thread(target=read_stderr, args=(ffmpeg.stderr,), daemon=True).start()
 
