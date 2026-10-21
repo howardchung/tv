@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MPEG-TS (MPEG-2) over HTTP/1.1 chunked → H.264 player</title>
+<style>
+  body { font-family: system-ui, sans-serif; background:#111; color:#ddd; margin:0; padding:16px; }
+  .row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  input { flex:1; min-width:260px; padding:8px; background:#222; color:#eee; border:1px solid #444; border-radius:6px; }
+  button { padding:8px 14px; border:0; border-radius:6px; background:#3b82f6; color:#fff; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:default; }
+  video { width:100%; max-width:960px; background:#000; display:block; }
+  pre { background:#1a1a1a; padding:10px; border-radius:6px; max-height:240px; overflow:auto; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="row">
+  <input id="url" value="http://localhost:8080/stream.ts" aria-label="HTTP stream URL">
+  <button id="go">Connect</button>
+  <button id="stop" disabled>Stop</button>
+</div>
+<video id="video" autoplay muted playsinline controls></video>
+<pre id="log"></pre>
+
+<script type="module">
+import {
+  Output, Mp4OutputFormat, StreamTarget, EncodedVideoPacketSource, EncodedAudioPacketSource, EncodedPacket,
+} from 'https://cdn.jsdelivr.net/npm/mediabunny@1.42.0/dist/bundles/mediabunny.min.mjs';
+
+/* ---------------------------------------------------------------------------
+ * Pipeline
+ *   HTTP/1.1 chunked response (Transfer-Encoding: chunked; fetch + ReadableStream, MPEG-TS bytes)
+ *     -> TS segmenter (≈1 s chunks, cut at video keyframes, PAT/PMT re-prepended)
+ *     -> ffmpeg.wasm: demux + MPEG-2 decode -> raw I420 frames,
+ *                     audio (MP2/AC-3/...) decoded + encoded to AAC-LC (ADTS)
+ *     -> WebCodecs VideoEncoder (H.264)
+ *     -> mediabunny fragmented-MP4 muxer (H.264 + AAC)
+ *     -> MediaSource -> <video>
+ *
+ * ffmpeg.wasm is loaded straight from the jsDelivr CDN (pinned version). Browsers refuse to
+ * start a Worker from another origin, and the UMD build of @ffmpeg/ffmpeg hard-codes the worker
+ * URL as "<its own directory>/814.ffmpeg.js". So we fetch ffmpeg.js as text, point that one
+ * Worker constructor at a blob: copy of 814.ffmpeg.js, and run the patched script. The core
+ * (UMD, loaded by importScripts inside a classic worker) is also served as blob: URLs.
+ * ------------------------------------------------------------------------- */
+const FFMPEG_VERSION = '0.12.10';
+const FFMPEG = {
+  script: `https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/umd/ffmpeg.js`,        // defines window.FFmpegWASM
+  worker: `https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/umd/814.ffmpeg.js`,    // webpack worker chunk
+  core:   `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_VERSION}/dist/umd/ffmpeg-core.js`,
+  wasm:   `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_VERSION}/dist/umd/ffmpeg-core.wasm`,
+};
+const SEGMENT_TARGET_MS = 2000;   // cut at first video keyframe after this long
+const SEGMENT_MAX_MS = 4000;      // ...or at the next video PES start after this long
+const MAX_QUEUED_SEGMENTS = 3;    // drop oldest if ffmpeg can't keep up
+const TARGET_BITRATE = 4_000_000;
+
+const $ = id => document.getElementById(id);
+const logEl = $('log');
+const log = (...a) => { logEl.textContent += a.join(' ') + '\n'; logEl.scrollTop = logEl.scrollHeight; console.log(...a); };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const toBlobURL = async (url, type) => {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`Fetch failed (${r.status}): ${url}`);
+  return URL.createObjectURL(new Blob([await r.arrayBuffer()], { type }));
+};
+
+let session = null;
+$('go').onclick = async () => {
+  $('go').disabled = true; $('stop').disabled = false;
+  logEl.textContent = '';
+  session = new Session($('url').value);
+  try { await session.run(); }
+  catch (e) { log('ERROR:', e?.message ?? e); }
+  finally { session?.stop(); $('go').disabled = false; $('stop').disabled = true; }
+};
+$('stop').onclick = () => session?.stop();
+
+/* ---------- MPEG-TS segmenter ---------- */
+class TsSegmenter {
+  constructor(onSegment) {
+    this.onSegment = onSegment;
+    this.rem = new Uint8Array(0);
+    this.pkts = [];
+    this.start = 0;
+    this.videoPid = -1; this.pmtPid = -1;
+    this.pat = null; this.pmt = null;
+  }
+  push(chunk) {
+    let data = chunk;
+    if (this.rem.length) {
+      data = new Uint8Array(this.rem.length + chunk.length);
+      data.set(this.rem); data.set(chunk, this.rem.length);
+    }
+    let i = 0;
+    while (i + 188 <= data.length) {
+      if (data[i] !== 0x47) { i++; continue; }            // crude resync
+      this.packet(data.subarray(i, i + 188));
+      i += 188;
+    }
+    this.rem = data.slice(i);
+  }
+  packet(p) {
+    const pid = ((p[1] & 0x1f) << 8) | p[2];
+    const pusi = !!(p[1] & 0x40);
+    const afc = (p[3] >> 4) & 3;
+    let off = 4, rai = false;
+    if (afc & 2) { const l = p[4]; if (l > 0) rai = !!(p[5] & 0x40); off = 5 + l; }
+
+    if (pid === 0 && pusi) {                                // PAT: remember it and find the PMT pid
+      this.pat = p.slice();
+      const t = off + 1 + p[off];                           // skip pointer_field
+      for (let e = t + 8; e + 4 <= 184 && e < t + 3 + (((p[t + 1] & 0x0f) << 8) | p[t + 2]) - 4; e += 4) {
+        if (((p[e] << 8) | p[e + 1]) !== 0) { this.pmtPid = ((p[e + 2] & 0x1f) << 8) | p[e + 3]; break; }
+      }
+    } else if (pid === this.pmtPid && pusi) {
+      this.pmt = p.slice();
+    }
+    if ((afc & 1) && pusi && this.videoPid < 0 && off + 4 <= 188 &&
+        p[off] === 0 && p[off + 1] === 0 && p[off + 2] === 1 && p[off + 3] >= 0xe0 && p[off + 3] <= 0xef) {
+      this.videoPid = pid;
+    }
+
+    const now = performance.now();
+    if (!this.pkts.length) this.start = now;
+    const elapsed = now - this.start;
+    if (this.pkts.length && pid === this.videoPid &&
+        ((rai && elapsed >= SEGMENT_TARGET_MS) || (pusi && elapsed >= SEGMENT_MAX_MS))) {
+      this.cut();
+      this.start = now;
+    }
+    this.pkts.push(p.slice());
+  }
+  cut() {
+    const head = [this.pat, this.pmt].filter(Boolean);
+    const all = head.concat(this.pkts);
+    const out = new Uint8Array(all.length * 188);
+    all.forEach((p, i) => out.set(p, i * 188));
+    this.pkts = [];
+    this.onSegment(out);
+  }
+}
+
+/* ---------- ADTS (AAC) parsing ---------- */
+const AAC_RATES = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350];
+function parseAdts(buf) {
+  const frames = []; let info = null, i = 0;
+  while (i + 7 <= buf.length) {
+    if (buf[i] !== 0xff || (buf[i + 1] & 0xf0) !== 0xf0) { i++; continue; }
+    const hdr = (buf[i + 1] & 1) ? 7 : 9;                       // protection_absent
+    const obj = ((buf[i + 2] >> 6) & 3) + 1;
+    const sfi = (buf[i + 2] >> 2) & 0xf;
+    const ch = ((buf[i + 2] & 1) << 2) | (buf[i + 3] >> 6);
+    const len = ((buf[i + 3] & 3) << 11) | (buf[i + 4] << 3) | (buf[i + 5] >> 5);
+    if (len < hdr || i + len > buf.length) break;
+    frames.push(buf.slice(i + hdr, i + len));
+    info ??= { sr: AAC_RATES[sfi], ch, asc: new Uint8Array([(obj << 3) | (sfi >> 1), ((sfi & 1) << 7) | (ch << 3)]) };
+    i += len;
+  }
+  return { frames, info };
+}
+
+/* ---------- Session ---------- */
+class Session {
+  constructor(url) {
+    this.url = url; this.stopped = false; this.cleanups = [];
+    this.segQueue = []; this.frameCount = 0;
+    this.dims = null; this.fps = 25;
+    this.audioInfo = null; this.asource = null; this.audioNext = 0; this.audioFirst = true;
+    this.base = undefined; this.lastOut = undefined;   // PTS -> output timeline mapping
+  }
+  stop() {
+    if (this.stopped) return;
+    this.stopped = true;
+    this.cleanups.forEach(fn => { try { fn(); } catch {} });
+  }
+
+  async loadFFmpeg() {
+    log('Downloading ffmpeg.wasm (~30 MB)...');
+    const [mainJs, workerURL, coreURL, wasmURL] = await Promise.all([
+      fetch(FFMPEG.script).then(r => { if (!r.ok) throw new Error(`Fetch failed (${r.status}): ${FFMPEG.script}`); return r.text(); }),
+      toBlobURL(FFMPEG.worker, 'text/javascript'),
+      toBlobURL(FFMPEG.core, 'text/javascript'),
+      toBlobURL(FFMPEG.wasm, 'application/wasm'),
+    ]);
+
+    // Redirect the UMD build's hard-coded same-directory worker URL to our blob copy.
+    const WORKER_CTOR = 'new Worker(new URL(e.p+e.u(814),e.b),{type:void 0})';
+    if (!mainJs.includes(WORKER_CTOR)) {
+      throw new Error('ffmpeg.js worker constructor not found: the file differs from @ffmpeg/ffmpeg ' + FFMPEG_VERSION + '. Pin FFMPEG_VERSION to 0.12.10 or adapt the patch.');
+    }
+    window.__ffmpegWorkerURL = workerURL;
+    const patched = mainJs.replace(WORKER_CTOR, 'new Worker(window.__ffmpegWorkerURL,{type:void 0})');
+    const scriptURL = URL.createObjectURL(new Blob([patched], { type: 'text/javascript' }));
+    delete window.FFmpegWASM;
+    await new Promise((res, rej) => {
+      const el = document.createElement('script');
+      el.src = scriptURL; el.onload = res; el.onerror = () => rej(new Error('Could not run patched ffmpeg.js'));
+      document.head.appendChild(el);
+    });
+    this.cleanups.push(() => [workerURL, coreURL, wasmURL, scriptURL].forEach(u => URL.revokeObjectURL(u)));
+
+    const ff = new FFmpegWASM.FFmpeg();
+    await ff.load({ coreURL, wasmURL });
+    log('ffmpeg.wasm ready');
+    this.cleanups.push(() => ff.terminate());
+    return ff;
+  }
+
+  /* ---- fMP4 output -> MediaSource -> <video> ---- */
+  async setupPlayer() {
+    const video = $('video');
+    const ms = new MediaSource();
+    video.src = URL.createObjectURL(ms);
+    this.cleanups.push(() => URL.revokeObjectURL(video.src));
+    await new Promise(r => ms.addEventListener('sourceopen', r, { once: true }));
+    this.ms = ms;
+    this.queue = []; this.sb = null;
+    this.pump = () => {
+      if (!this.sb || this.sb.updating || !this.queue.length) return;
+      try { this.sb.appendBuffer(this.queue.shift()); }
+      catch (e) {
+        if (e.name === 'QuotaExceededError' && video.buffered.length) {
+          const end = video.buffered.end(video.buffered.length - 1);
+          this.sb.remove(0, Math.max(0, end - 10));
+        } else log('append error:', e.message);
+      }
+    };
+    this.writable = new WritableStream({
+      write: chunk => { this.queue.push(chunk.data.slice()); this.pump(); },
+    });
+  }
+  attachSourceBuffer(mime) {
+    log('MSE mime:', mime);
+    if (!MediaSource.isTypeSupported(mime)) throw new Error('MSE does not support ' + mime);
+    this.sb = this.ms.addSourceBuffer(mime);
+    this.sb.addEventListener('updateend', () => {
+      this.pump();
+      const v = $('video');
+      if (v.buffered.length) {                               // stay near the live edge
+        const end = v.buffered.end(v.buffered.length - 1);
+        if (end - v.currentTime > 4) v.currentTime = end - 0.5;
+      }
+    });
+    this.pump();
+  }
+
+  /* ---- H.264 encoder + muxer (created on first decoded frame) ---- */
+  async initEncoder(width, height) {
+    const config = {
+      codec: 'avc1.640028', width, height, bitrate: TARGET_BITRATE, framerate: this.fps,
+      latencyMode: 'realtime', avc: { format: 'avc' }, hardwareAcceleration: 'prefer-hardware',
+    };
+    if (!(await VideoEncoder.isConfigSupported(config)).supported) throw new Error('H.264 encoding not supported in this browser');
+    log(`H.264 encoder: ${width}x${height} @ ${this.fps} fps`);
+
+    const output = new Output({ format: new Mp4OutputFormat({ fastStart: 'fragmented' }), target: new StreamTarget(this.writable) });
+    const source = new EncodedVideoPacketSource('avc');
+    output.addVideoTrack(source, { frameRate: this.fps });
+    if (this.audioInfo) {
+      this.asource = new EncodedAudioPacketSource('aac');
+      output.addAudioTrack(this.asource);
+    }
+    await output.start();
+    this.output = output;
+
+    let first = true;
+    this.encoder = new VideoEncoder({
+      output: async (chunk, meta) => {
+        try {
+          await source.add(EncodedPacket.fromEncodedChunk(chunk), first ? meta : undefined);
+          if (first) { first = false; this.attachSourceBuffer(await output.getMimeType()); }
+        } catch (e) { log('mux error:', e.message); }
+      },
+      error: e => log('VideoEncoder error:', e.message),
+    });
+    this.encoder.configure(config);
+    this.cleanups.push(() => this.encoder.state !== 'closed' && this.encoder.close());
+  }
+
+  ensureEncoder() {
+    return this.encoderReady ??= this.initEncoder(this.dims.w, this.dims.h);
+  }
+
+  // Add one segment's AAC frames at their real (PTS-derived) position on the output timeline.
+  // startSec = PTS of the first audio sample of the segment. ffmpeg's AAC encoder prepends
+  // 1024 samples of priming delay, so frame 0 is placed one frame earlier so that the decoded
+  // content lands exactly on its PTS. Frames that would overlap what is already muxed are
+  // dropped (the muxer needs monotonic timestamps); small gaps/overlaps (< 0.9 frame, i.e. the
+  // encoder's end padding) are snapped shut so playback never stalls on a hole.
+  async pushAudio(frames, startSec) {
+    const { sr, ch, asc } = this.audioInfo;
+    const dur = 1024 / sr;
+    let t = startSec - dur;
+    for (const data of frames) {
+      const diff = t - this.audioNext;
+      const ts = Math.abs(diff) <= 0.9 * dur ? this.audioNext : t;
+      t += dur;
+      if (ts < 0 || ts < this.audioNext - 0.9 * dur) continue;   // before the start / overlap
+      const pkt = new EncodedPacket(data, 'key', ts, dur);
+      const meta = this.audioFirst ? { decoderConfig: { codec: 'mp4a.40.2', numberOfChannels: ch, sampleRate: sr, description: asc } } : undefined;
+      this.audioFirst = false;
+      await this.asource.add(pkt, meta);
+      this.audioNext = ts + dur;
+    }
+  }
+
+  async encodeFrame(frame) {
+    await this.ensureEncoder();
+    while (!this.stopped && this.encoder.encodeQueueSize > 6) {          // backpressure
+      await new Promise(r => this.encoder.addEventListener('dequeue', r, { once: true }));
+    }
+    if (this.stopped || this.encoder.state === 'closed') return frame.close();
+    this.encoder.encode(frame, { keyFrame: this.frameCount % 60 === 0 });
+    frame.close();
+  }
+
+  /* ---- ffmpeg.wasm: one TS segment -> raw I420 frames ---- */
+  async decodeSegment(ff, seg) {
+    const logs = [];
+    const onLog = ({ message }) => logs.push(message);
+    ff.on('log', onLog);
+    let yuv = null, aac = null;
+    try {
+      await ff.writeFile('in.ts', seg);
+      const vf = (this.dims ? `scale=${this.dims.w}:${this.dims.h}` : 'scale=trunc(iw/2)*2:trunc(ih/2)*2') + ',showinfo';
+      await ff.exec(['-hide_banner', '-copyts', '-f', 'mpegts', '-i', 'in.ts',
+                     '-map', '0:v:0', '-vsync', '0', '-vf', vf, '-pix_fmt', 'yuv420p', '-f', 'rawvideo', 'out.yuv',
+                     '-map', '0:a:0?', '-af', 'ashowinfo', '-c:a', 'aac', '-b:a', '128k', '-ac', '2', '-f', 'adts', 'out.aac']);
+      yuv = await ff.readFile('out.yuv');
+      try { aac = await ff.readFile('out.aac'); } catch {}
+    } catch (e) {
+      log('segment decode produced no output:', e?.message ?? e);
+    } finally {
+      ff.off('log', onLog);
+      for (const f of ['in.ts', 'out.yuv', 'out.aac']) { try { await ff.deleteFile(f); } catch {} }
+    }
+    if (!yuv || !yuv.length) return;
+
+    if (!this.dims) {
+      const text = logs.join('\n');
+      const m = text.match(/Video:[^\n]*?\b(\d{2,5})x(\d{2,5})\b/);
+      if (!m) { log('Could not determine video size from ffmpeg log'); return; }
+      this.dims = { w: (+m[1]) & ~1, h: (+m[2]) & ~1 };
+      const f = text.match(/(\d+(?:\.\d+)?) fps/);
+      if (f) this.fps = Math.min(60, Math.max(1, +f[1]));
+      log(`Source: ${m[1]}x${m[2]}, ${this.fps} fps (MPEG-2 decoded by ffmpeg.wasm)`);
+    }
+    const { w, h } = this.dims;
+    const size = w * h * 3 / 2;
+    const nFrames = Math.floor(yuv.length / size);
+    const nomDur = 1 / this.fps;
+
+    // --- real timestamps from ffmpeg's showinfo/ashowinfo log lines (needs -copyts) ---
+    const text = logs.join('\n');
+    const num = '(-?\\d+(?:\\.\\d+)?)';
+    const vPts = [...text.matchAll(new RegExp(`Parsed_showinfo[^\\]]*\\]\\s*n:\\s*\\d+\\s+pts:\\s*-?\\d+\\s+pts_time:\\s*${num}`, 'g'))].map(m => +m[1]);
+    const aMatch = text.match(new RegExp(`Parsed_ashowinfo[^\\]]*\\]\\s*n:\\s*\\d+\\s+pts:\\s*-?\\d+\\s+pts_time:\\s*${num}`));
+    const havePts = vPts.length === nFrames && nFrames > 0;
+    if (!havePts && nFrames) log(`Timestamp parse mismatch (${vPts.length} pts for ${nFrames} frames): using frame-rate timing for this segment`);
+
+    if (this.base === undefined) {
+      this.base = havePts ? vPts[0] : 0;
+    } else if (havePts && this.lastOut !== undefined) {
+      const gap = (vPts[0] - this.base) - this.lastOut;            // expected ≈ one frame
+      if (gap < -0.25 || gap > 5) {                                   // stream restarted / PTS wrapped
+        log(`Timestamp discontinuity (${gap.toFixed(2)} s): re-basing timeline`);
+        this.base = vPts[0] - (this.lastOut + nomDur);
+      }
+    }
+    const outTs = [];
+    let prev = this.lastOut;
+    for (let i = 0; i < nFrames; i++) {
+      let t = havePts ? vPts[i] - this.base : (prev === undefined ? 0 : prev + nomDur);
+      if (prev !== undefined && t <= prev) t = prev + 0.001;         // keep strictly increasing
+      outTs.push(t); prev = t;
+    }
+    const audioStart = aMatch ? +aMatch[1] - this.base : (outTs[0] ?? 0);
+
+    let audio = null;
+    if (aac?.length) {
+      audio = parseAdts(aac);
+      if (!this.encoderReady && audio.info) {
+        this.audioInfo = audio.info;
+        log(`Audio: AAC-LC ${audio.info.sr} Hz, ${audio.info.ch} ch (re-encoded by ffmpeg.wasm)`);
+      }
+    } else if (!this.encoderReady) {
+      log('No audio track found in the first segment; playing video only');
+    }
+    await this.ensureEncoder();
+    if (audio?.frames.length && this.asource) await this.pushAudio(audio.frames, audioStart);
+
+    const dur = Math.round(nomDur * 1e6);
+    for (let i = 0; i < nFrames && !this.stopped; i++) {
+      const frame = new VideoFrame(yuv.subarray(i * size, (i + 1) * size), {
+        format: 'I420', codedWidth: w, codedHeight: h,
+        timestamp: Math.round(outTs[i] * 1e6), duration: dur,
+      });
+      await this.encodeFrame(frame);
+      this.frameCount++;
+    }
+    if (prev !== undefined) this.lastOut = prev;
+  }
+
+  async run() {
+    await this.setupPlayer();
+    const ff = await this.loadFFmpeg();
+
+    const seg = new TsSegmenter(bytes => {
+      this.segQueue.push(bytes);
+      while (this.segQueue.length > MAX_QUEUED_SEGMENTS) { this.segQueue.shift(); log('ffmpeg is behind real time: dropped a segment'); }
+    });
+
+    // HTTP streaming: fetch() + ReadableStream. The browser decodes Transfer-Encoding: chunked
+    // itself and hands us the body bytes as they arrive. The HTTP version is not selectable from
+    // JS: plain http:// is always HTTP/1.1; over https:// the server must not offer h2 via ALPN.
+    const ac = new AbortController();
+    this.cleanups.push(() => ac.abort());
+    let closed = false;
+    (async () => {
+      try {
+        const res = await fetch(this.url, { signal: ac.signal, cache: 'no-store' });
+        if (!res.ok || !res.body) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+        log(`HTTP ${res.status} open (${res.headers.get('content-type') ?? 'no content-type'})`);
+        const reader = res.body.getReader();
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          seg.push(value);
+        }
+      } catch (e) {
+        if (!ac.signal.aborted) log('Stream error:', e?.message ?? e);
+      } finally {
+        closed = true;
+        log('Stream ended');
+        const proto = performance.getEntriesByName(this.url).pop()?.nextHopProtocol;
+        if (proto) log('Negotiated protocol:', proto);
+        if (seg.pkts.length) seg.cut();
+      }
+    })();
+
+    while (!this.stopped) {
+      const next = this.segQueue.shift();
+      if (!next) { if (closed) break; await sleep(30); continue; }
+      const t0 = performance.now();
+      await this.decodeSegment(ff, next);
+      log(`segment ${(next.length / 1024) | 0} KB processed in ${((performance.now() - t0) / 1000).toFixed(2)} s`);
+    }
+    try { await this.encoder?.flush(); await this.output?.finalize(); } catch {}
+    log('Done');
+  }
+}
+</script>
+</body>
+</html>
