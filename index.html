@@ -45,7 +45,7 @@ h1 { margin: 0; font-size: clamp(23px, 3vw, 32px); letter-spacing: -.04em; line-
 .intro { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 18px; }
 .intro h2 { margin: 0; font-size: 17px; letter-spacing: -.015em; }
 .intro p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .channel-label { grid-column: 1 / -1; margin: 10px 0 -4px; padding-bottom: 8px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; letter-spacing: -.01em; }
 .channel-label:first-child { margin-top: 0; }
 .channel-label span { margin-left: 8px; color: var(--muted); font-size: 12px; font-weight: 500; }
@@ -77,7 +77,7 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
 .card-foot button:hover { border-color: var(--accent); }
 .notice { margin-top: 20px; padding: 13px 16px; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); background: rgba(17,23,34,.7); font-size: 12px; }
 .notice strong { color: var(--text); }
-@media (max-width: 1280px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) {
   .page { padding: 22px 12px 32px; }
   header { align-items: flex-start; }
@@ -133,42 +133,30 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
         <div class="card-foot"><span id="detail3">Loading DASH manifest</span><button type="button" data-retry="3">Retry</button></div>
       </article>
 
-      <article class="card" data-player="native">
-        <div class="card-head"><div class="card-title"><span class="index">04</span><div><h3>Native HLS</h3><div class="protocol">Browser playback</div></div></div><span class="status" id="status4">Checking</span></div>
-        <div class="screen"><video id="video4" controls playsinline muted preload="none" aria-label="Native browser HLS playback, channel 1"></video></div>
-        <div class="codecs" id="codecs4"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
-        <div class="card-foot"><span id="detail4">Checking native HLS support</span><button type="button" data-retry="4">Retry</button></div>
-      </article>
 
       <div class="channel-label">Channel 2<span>KOMO</span></div>
 
       <article class="card" data-player="mpegts">
-        <div class="card-head"><div class="card-title"><span class="index">05</span><div><h3>mpegts.js</h3><div class="protocol">MPEG-TS · Live</div></div></div><span class="status" id="status5">Starting</span></div>
+        <div class="card-head"><div class="card-title"><span class="index">04</span><div><h3>mpegts.js</h3><div class="protocol">MPEG-TS · Live</div></div></div><span class="status" id="status5">Starting</span></div>
         <div class="screen"><video id="video5" controls playsinline muted preload="none" aria-label="mpegts.js live stream, channel 2"></video></div>
         <div class="codecs" id="codecs5"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail5">Connecting to MPEG-TS source</span><button type="button" data-retry="5">Retry</button></div>
       </article>
 
       <article class="card" data-player="hls">
-        <div class="card-head"><div class="card-title"><span class="index">06</span><div><h3>hls.js</h3><div class="protocol">HLS · M3U8</div></div></div><span class="status" id="status6">Starting</span></div>
+        <div class="card-head"><div class="card-title"><span class="index">05</span><div><h3>hls.js</h3><div class="protocol">HLS · M3U8</div></div></div><span class="status" id="status6">Starting</span></div>
         <div class="screen"><video id="video6" controls playsinline muted preload="none" aria-label="hls.js live stream, channel 2"></video></div>
         <div class="codecs" id="codecs6"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail6">Loading HLS manifest</span><button type="button" data-retry="6">Retry</button></div>
       </article>
 
       <article class="card" data-player="dash">
-        <div class="card-head"><div class="card-title"><span class="index">07</span><div><h3>dash.js</h3><div class="protocol">MPEG-DASH · MPD</div></div></div><span class="status" id="status7">Starting</span></div>
+        <div class="card-head"><div class="card-title"><span class="index">06</span><div><h3>dash.js</h3><div class="protocol">MPEG-DASH · MPD</div></div></div><span class="status" id="status7">Starting</span></div>
         <div class="screen"><video id="video7" controls playsinline muted preload="none" aria-label="dash.js live stream, channel 2"></video></div>
         <div class="codecs" id="codecs7"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
         <div class="card-foot"><span id="detail7">Loading DASH manifest</span><button type="button" data-retry="7">Retry</button></div>
       </article>
 
-      <article class="card" data-player="native">
-        <div class="card-head"><div class="card-title"><span class="index">08</span><div><h3>Native HLS</h3><div class="protocol">Browser playback</div></div></div><span class="status" id="status8">Checking</span></div>
-        <div class="screen"><video id="video8" controls playsinline muted preload="none" aria-label="Native browser HLS playback, channel 2"></video></div>
-        <div class="codecs" id="codecs8"><div class="codec-row"><span class="codec-label">Video</span><span class="codec-value pending" data-kind="video">Waiting for stream info</span></div><div class="codec-row"><span class="codec-label">Audio</span><span class="codec-value pending" data-kind="audio">Waiting for stream info</span></div></div>
-        <div class="card-foot"><span id="detail8">Checking native HLS support</span><button type="button" data-retry="8">Retry</button></div>
-      </article>
     </div>
   </section>
 
@@ -478,31 +466,14 @@ video { display: block; width: 100%; height: 100%; object-fit: contain; backgrou
     }
   }
 
-  function initNative(id, channel) {
-    const video = el("video" + id);
-    clearPlayer(id);
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = CHANNELS[channel].hls;
-      loadPlaylistCodecs(id, CHANNELS[channel].hls);
-      setStatus(id, "Ready", "Native HLS supported");
-      safePlay(video, id);
-    } else {
-      video.removeAttribute("src");
-      setCodecs(id, { note: "Unavailable without native HLS" });
-      setStatus(id, "Unsupported", "This browser has no native HLS support");
-    }
-  }
-
   // Player id -> initializer + channel
   const initializers = {
     1: () => initMpegts(1, 1),
     2: () => initHls(2, 1),
     3: () => initDash(3, 1),
-    4: () => initNative(4, 1),
     5: () => initMpegts(5, 2),
     6: () => initHls(6, 2),
     7: () => initDash(7, 2),
-    8: () => initNative(8, 2),
   };
 
   document.querySelectorAll("[data-retry]").forEach((button) => {
