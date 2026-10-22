@@ -86,51 +86,32 @@ def launch(id):
     encode6 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v hevc_vaapi -sei -a53_cc -g 30 -qp 26'
     encode7 = '-vaapi_device /dev/dri/renderD128 -vf \'format=nv12,hwupload\' -c:v av1_vaapi -sei -a53_cc -g 30 -qp 26'
 
+    container_dash = rf'-f dash -seg_duration 6 -window_size 100 -init_seg_name "{id}_init_\$RepresentationID\$.\$ext\$" -media_seg_name "{id}_chunk_\$RepresentationID\$-\$Number\$.\$ext\$"' # -tag:v av01 -tag:v hvc1 -tag:a mp4a
     container_flv = '-f flv'
     container_fmp4 = '-f mp4 -movflags frag_keyframe+empty_moov'
     outname_hls = basepath + id + '.m3u8'
     outname_dash = basepath + id + '.mpd'
     outname3 = 'rtmp://5.78.115.83:5000'
 
-    # One encode, several outputs, as two piped ffmpeg processes
-    # (https://trac.ffmpeg.org/wiki/Creating%20multiple%20outputs): the first ffmpeg encodes once
-    # and writes nut to stdout, the second reads that and stream-copies it (-c copy) to every output.
-    # nut carries the codec extradata (SPS/PPS/VPS, AAC config) in its header and keeps AAC raw.
-    container_hls = [
-        '-f', 'hls',
-        '-hls_time', '6',
-        '-hls_list_size', '4800',
-        '-hls_flags', 'delete_segments+append_list',
-        '-hls_segment_type', 'fmp4',
-        '-hls_fmp4_init_filename', f'{id}_init.mp4',
-        outname_hls,
-    ]
-    container_dash = [
-        '-f', 'dash',
-        '-seg_duration', '6',
-        '-window_size', '100',
-        '-extra_window_size', '1',
-        '-init_seg_name', f'{id}_init_$RepresentationID$.$ext$',
-        '-media_seg_name', f'{id}_chunk_$RepresentationID$-$Number$.$ext$',
-        outname_dash,
-    ]
-    container_ts = ['-f', 'mpegts', 'pipe:1']  # served over HTTP by a second broadcast.js
+    # One encode, three outputs via the tee muxer. Per-output options go in [brackets]
+    # joined by ':', outputs are joined by '|'. No shell is involved, so the $ in the
+    # DASH templates needs no escaping. `id` is restricted by SAFE_ID, so it can't
+    # contain any of the tee-special characters (: , | [ ] \\).
+    tee_hls = f'[f=hls:hls_time=6:hls_list_size=4800:hls_flags=delete_segments+append_list:hls_segment_type=fmp4:hls_fmp4_init_filename={id}_init.mp4]{outname_hls}'
+    tee_dash = f'[f=dash:seg_duration=6:window_size=100:extra_window_size=1:init_seg_name={id}_init_$RepresentationID$.$ext$:media_seg_name={id}_chunk_$RepresentationID$-$Number$.$ext$]{outname_dash}'
+    tee_ts = '[f=mpegts]pipe:1'  # served over HTTP by a second broadcast.js
+    container_tee = ['-map', '0:v:0', '-map', '0:a:0', '-f', 'tee', f'{tee_hls}|{tee_dash}|{tee_ts}']
 
     encode = encode6
     if adapter == "1":
         encode = encode2
 
-    # Copying out of nut leaves the video with a nut tag that mp4-style muxers (hls fmp4, dash)
-    # reject, so set the tag explicitly. hvc1 (rather than hev1) is what Safari wants for HEVC.
-    # The muxers get SPS/PPS/VPS from the nut header, so the MPD codec string is complete
-    # (e.g. avc1.4d401f). HEVC is only written in full (hvc1.1.6.L93.B0) by a recent ffmpeg,
-    # older builds (6.1, 7.0) write a bare "hvc1" whatever the options.
-    vtag = []
+    # -flags +global_header (below) puts SPS/PPS in the encoder extradata. Without it the tee muxer
+    # gives the DASH muxer no extradata, so the MPD says codecs="avc1" instead of e.g. "avc1.4d401f".
+    # hvc1 so Safari/DASH players accept HEVC in fMP4; only valid when actually encoding HEVC
+    tags = ['-tag:a', 'mp4a']
     if 'hevc' in encode or 'x265' in encode:
-        vtag = ['-tag:v', 'hvc1']
-    elif '264' in encode:
-        vtag = ['-tag:v', 'avc1']
-    mp4_opts = [*vtag, '-tag:a', 'mp4a']
+        tags = ['-tag:v', 'hvc1', *tags]
 
     port = str(8080 + int(adapter))
     ts_port = str(8180 + int(adapter))  # HTTP port for the mpegts output
@@ -146,32 +127,22 @@ def launch(id):
         stdin=zap.stdout, stdout=subprocess.PIPE,
     )
     zap.stdout.close()  # so zap gets SIGPIPE if node exits
-    ffmpeg_enc = subprocess.Popen(
-        ['ffmpeg', '-i', 'pipe:', *shlex.split(encode), '-c:a', 'aac', '-ac', '2', '-r', '30', '-f', 'nut', 'pipe:1'],
+    ffmpeg = subprocess.Popen(
+        ['ffmpeg', '-i', 'pipe:', *shlex.split(encode), '-c:a', 'aac', '-ac', '2', '-r', '30', '-flags', '+global_header', *tags, *container_tee],
         stdin=node.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
     )
     node.stdout.close()  # so node gets SIGPIPE if ffmpeg exits
 
-    ffmpeg_mux = subprocess.Popen(
-        ['ffmpeg', '-f', 'nut', '-i', 'pipe:',
-         '-map', '0:v:0', '-map', '0:a:0', '-c', 'copy', *mp4_opts, *container_hls,
-         '-map', '0:v:0', '-map', '0:a:0', '-c', 'copy', *mp4_opts, *container_dash,
-         '-map', '0:v:0', '-map', '0:a:0', '-c', 'copy', *container_ts],
-        stdin=ffmpeg_enc.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-    )
-    ffmpeg_enc.stdout.close()  # so the encoder gets SIGPIPE if the second ffmpeg exits
-
-    # the second ffmpeg's stdout carries the mpegts output, serve it over HTTP
+    # ffmpeg's stdout carries the mpegts stream, serve it over HTTP
     ts_node = subprocess.Popen(
         ['node', 'broadcast.js', ts_port],
-        stdin=ffmpeg_mux.stdout, stdout=subprocess.DEVNULL,
+        stdin=ffmpeg.stdout, stdout=subprocess.DEVNULL,
     )
-    ffmpeg_mux.stdout.close()  # so the second ffmpeg gets SIGPIPE if the ts server exits
+    ffmpeg.stdout.close()  # so ffmpeg gets SIGPIPE if the ts server exits
 
-    procs.extend([zap, node, ffmpeg_enc, ffmpeg_mux, ts_node])
-    ffmpeg_proc = ffmpeg_enc
-    for p in (ffmpeg_enc, ffmpeg_mux):
-        threading.Thread(target=read_stderr, args=(p.stderr,), daemon=True).start()
+    procs.extend([zap, node, ffmpeg, ts_node])
+    ffmpeg_proc = ffmpeg
+    threading.Thread(target=read_stderr, args=(ffmpeg.stderr,), daemon=True).start()
 
 
 def getChannel():
