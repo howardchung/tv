@@ -98,7 +98,7 @@ def launch(id):
     # DASH templates needs no escaping. `id` is restricted by SAFE_ID, so it can't
     # contain any of the tee-special characters (: , | [ ] \\).
     tee_hls = f'[f=hls:hls_time=6:hls_list_size=4800:hls_flags=delete_segments+append_list:hls_segment_type=fmp4:hls_fmp4_init_filename={id}_init.mp4]{outname_hls}'
-    tee_dash = f'[f=dash:seg_duration=6:window_size=100:extra_window_size=1:init_seg_name={id}_init_$RepresentationID$.$ext$:media_seg_name={id}_chunk_$RepresentationID$-$Number$.$ext$]{outname_dash}'
+    tee_dash = f'[f=dash:seg_duration=6:window_size=100:extra_window_size=1:init_seg_name={id}_init_$RepresentationID$.mp4:media_seg_name={id}_chunk_$RepresentationID$-$Number$.$ext$]{outname_dash}'
     tee_ts = '[f=mpegts]pipe:1'  # served over HTTP by a second broadcast.js
     container_tee = ['-map', '0:v:0', '-map', '0:a:0', '-f', 'tee', f'{tee_hls}|{tee_dash}|{tee_ts}']
 
